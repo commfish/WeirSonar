@@ -13,9 +13,9 @@ library(caret)#used for cross validation
 source('code/functions.R')
 
 # data ----
-data <- read_csv('H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar\\chigWeirDidson201718sjp.csv')
+data <- read_csv('H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar\\data\\chigWeirDidson201718sjp.csv')
 
-data <- data %>%    
+data <- data %>% 
   mutate(date = as.Date(date, "%m/%d/%Y"),
          year = format(date, "%Y"))
 
@@ -47,6 +47,10 @@ newpoint <- broom::augment(linear_model, newdata = new_data)
 pred <- predict(linear_model, newdata = new_data, interval = "prediction", level = 0.95)
 lwr <- pred[2]
 upr <- pred[3]
+
+
+####Graphing
+graph_10vs60(data) 
 
 #Use to make 95% CI and PI 
 minindependent_var <- min(data$independent_var, na.rm = TRUE)
@@ -92,3 +96,4 @@ dependent_var_pred <- predict(model, data) # necessary step to get training RMSE
 postResample(pred = dependent_var_pred, obs = data$dependent_var) #To get trainign RMSE
 #Compare training RMSE to (full) RMSE
 # If training RMSE is similare to full RMSE then expect similar predictive results in the future. 
+
