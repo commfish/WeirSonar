@@ -14,20 +14,13 @@ library(caret)#used for cross validation
 
 # functions ----
 
-#returns graph of linear model, complete with confidence and predictive intervals, also graphs model diagnositics
-#Option of graphing an additionl point, but must pass data to the function and uncomment a line in ggplot. 
+#returns a p value from a t distribution testing if the slope of the line is equvalend to 1. (In which case x and y are interchageable.)
+pvalue_of_t_test_slope_eq_1 <- function(linear_model = lm){
+  pt(q = (coef(summary(linear_model))[2,1]-1)/coef(summary(linear_model))[2,2], df = summary(linear_model)$df[2], lower.tail = FALSE)*2
+}
+
+#returns graph of linear model, complete with confidence and predictive intervals, line x = y 
 graph_10vs60 <- function(data, linear_model) { #, newpoint){
-  # Linear Regression 
-  #linear_model<- lm(ten_minute ~ 0 + sixty_minute , data=data)
-  
-  #print diagnostics
-  #layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
-  #plot(linear_model)
-  
-  #use to plot the new predicted point
-  #new_data <- data.frame(sixty_minute= newpoint) #put in new data point
-  #newpoint <- broom::augment(linear_model, newdata = new_data)
-  
   #Use to make 95% CI and PI 
   minsixty_minute <- min(data$sixty_minute, na.rm = TRUE)
   maxsixty_minute <- max(data$sixty_minute, na.rm = TRUE)
@@ -37,8 +30,7 @@ graph_10vs60 <- function(data, linear_model) { #, newpoint){
   conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
   # ... prediction interval
   pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
-
-
+  
   g.pred <- ggplot(pred.int, aes(x = sixty_minute, y = fit)) +
     geom_point(data = data, aes(x = sixty_minute, y = ten_minute)) + #plots all the points
     #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
@@ -47,10 +39,9 @@ graph_10vs60 <- function(data, linear_model) { #, newpoint){
     geom_abline(intercept = 0, slope = 1) + #line y = x for reference
     theme_bw() +
     theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
-    xlab("sixty minute ") +
-    ylab("ten minute per hour counts to estimate daily passage") +
-    ggtitle(paste0(data$species[1], " ", data$year[1], " ", data$method[1], " 10 min. vs. 60 min. daily passage estimation"))
-  #ggtitle("ten_minute vs sixty_minute")
+    xlab("60 minute per hour count") +
+    ylab("10 minute per hour estimate") +
+    ggtitle(paste0(this_year, " ", this_method, " ", this_species, " estimates: 10 minute vs 60 minute"))
   g.pred  
 }
 
@@ -80,3 +71,37 @@ graph_template <- function(data){
   g.pred  
 }
 
+#functions for graphing diagnositics and returning a model
+#note data will have to be filtered and arranged appropriately.
+
+lm_10vs60 <- function(data){
+  linear_model <- lm(ten_minute ~ sixty_minute , data = data)
+  layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
+  plot(linear_model)
+  return(linear_model)
+}
+
+lm_60vs10 <- function(data){
+  linear_model <- lm(sixty_minute ~ ten_minute , data = data)
+  layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
+  plot(linear_model)
+  return(linear_model)
+}
+lm_weir60vssonar60 <- function(data){
+  linear_model <- lm(weir ~ sonar , data = data)
+  layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
+  plot(linear_model)
+  return(linear_model)
+}
+lm_weir10vssonar10 <- function(data){
+  linear_model <- lm(weir ~ sonar , data = data)
+  layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
+  plot(linear_model)
+  return(linear_model)
+}
+lm_weir60vssonar10 <- function(data){
+  linear_model <- lm(weir60 ~ sonar10 , data = data)
+  layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
+  plot(linear_model)
+  return(linear_model)
+}
