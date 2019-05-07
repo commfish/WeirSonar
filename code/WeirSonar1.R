@@ -76,6 +76,12 @@ summary(linear_model)# show results
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 sock2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
 
+  pt(q = (coef(summary(linear_model))[2,1]-1)/coef(summary(linear_model))[2,2], df = summary(linear_model)$df[2])
+
+  
+  #https://stats.stackexchange.com/questions/245350/how-to-compare-my-slope-to-1-rather-than-0-using-regression-analysis-and-t-distr?noredirect=1&lq=1
+  #https://stats.stackexchange.com/questions/137118/testing-a-regression-coefficient-against-1-rather-than-0
+  
 #graph
 sock2017weir_graph <- graph_10vs60(chignik, linear_model)
 ggsave(paste0("WeirSonar/figures/", this_year, this_method, this_species, ".png"),
@@ -164,8 +170,6 @@ coho2018weir_graph <- graph_10vs60(chignik, linear_model)
 ggsave(paste0("WeirSonar/figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
-sockeyegraphs <- cowplot::plot_grid(sock2017weir_graph, sock2018weir_graph, sock2017sonar_graph, sock2018sonar_graph, scale = c(1,1,1,1))
-
 
 ##sonar
 #set up particular data
@@ -201,7 +205,18 @@ coho2018sonar_graph <- graph_10vs60(chignik, linear_model)
 ggsave(paste0("WeirSonar/figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
+sockeyegraphs <- cowplot::plot_grid(sock2017weir_graph, sock2018weir_graph, sock2017sonar_graph, sock2018sonar_graph, scale = c(1,1,1,1))
+cohographs <- cowplot::plot_grid(coho2017weir_graph, coho2018weir_graph, coho2017sonar_graph, coho2018sonar_graph, scale = c(1,1,1,1))
 
+
+sock2017weir_pvalue
+sock2018weir_pvalue
+sock2017sonar_pvalue
+sock2018sonar_pvalue
+coho2017weir_pvalue
+coho2018weir_pvalue
+coho2017sonar_pvalue
+coho2018sonar_pvalue
 
 # Linear Regression with intercept = 0. 
 sock_2017_dids_int0<- lm(ten_minute ~ 0 + sixty_minute , data=data)

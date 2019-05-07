@@ -16,7 +16,7 @@ library(caret)#used for cross validation
 
 #returns a p value from a t distribution testing if the slope of the line is equvalend to 1. (In which case x and y are interchageable.)
 pvalue_of_t_test_slope_eq_1 <- function(linear_model = lm){
-  pt(q = (coef(summary(linear_model))[2,1]-1)/coef(summary(linear_model))[2,2], df = summary(linear_model)$df[2], lower.tail = FALSE)*2
+  pt(-abs((coef(summary(linear_model))[2,1]-1)/coef(summary(linear_model))[2,2]), df = summary(linear_model)$df[2])*2
 }
 
 #returns graph of linear model, complete with confidence and predictive intervals, line x = y 
@@ -41,7 +41,7 @@ graph_10vs60 <- function(data, linear_model) { #, newpoint){
     theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
     xlab("60 minute per hour count") +
     ylab("10 minute per hour estimate") +
-    ggtitle(paste0(this_year, " ", this_method, " ", this_species, " estimates: 10 minute vs 60 minute"))
+    ggtitle(paste0(this_year, " ", this_method, " ", this_species, " 10 min. vs 60 min."))
   g.pred  
 }
 
