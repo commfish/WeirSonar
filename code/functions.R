@@ -18,6 +18,7 @@ library(caret)#used for cross validation
 pvalue_of_t_test_slope_eq_1 <- function(linear_model = lm){
   pt(-abs((coef(summary(linear_model))[2,1]-1)/coef(summary(linear_model))[2,2]), df = summary(linear_model)$df[2])*2
 }
+#http://r-statistics.co/Linear-Regression.html
 
 #returns graph of linear model, complete with confidence and predictive intervals, line x = y 
 graph_10vs60 <- function(data, linear_model) { #, newpoint){
