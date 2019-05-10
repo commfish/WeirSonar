@@ -384,8 +384,28 @@ total2018sonar_pvalue
 ##weir vs sonar
 #set up particular data
 this_species <- "sockeye"
-time_interval <- "sixty_minute"
+time_interval <- "weir60sonar60"
 this_year <- 2017
+chignik <- data_given %>% 
+  dplyr::select(-ten_minute) %>% 
+  filter(year == this_year, species == this_species) %>%
+  filter(date != "2017-09-03") %>% # This date had outliers for numbers of fish for the sonar. 
+  spread(method, sixty_minute) %>%
+  rename(sonar = "didson sonar")
+
+# Linear Regression 
+linear_model <- lm_weir60vssonar60(chignik)
+summary(linear_model)# show results
+
+#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
+sock2017weir60sonar60_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+
+#graph
+sock2017weir60sonar60_graph <- graph_weirvssonar(chignik, linear_model)
+ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
+       dpi=600, height=6, width=6, units="in")
+
+this_year <- 2018
 chignik <- data_given %>% 
   dplyr::select(-ten_minute) %>% 
   filter(year == this_year, species == this_species) %>%
@@ -397,44 +417,123 @@ linear_model <- lm_weir60vssonar60(chignik)
 summary(linear_model)# show results
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-sock2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+sock2018weir60sonar60_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
 
 #graph
-sock2017weir_graph <- graph_weirvssonar(chignik, linear_model)
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
+sock2018weir60sonar60_graph <- graph_weirvssonar(chignik, linear_model)
+ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
+       dpi=600, height=6, width=6, units="in")
+
+#coho
+
+this_species <- "coho"
+time_interval <- "weir60sonar60"
+this_year <- 2017
+chignik <- data_given %>% 
+  dplyr::select(-ten_minute) %>% 
+  filter(year == this_year, species == this_species) %>%
+  filter(date != "2017-09-03") %>% # This date had outliers for numbers of fish for the sonar. 
+  spread(method, sixty_minute) %>%
+  rename(sonar = "didson sonar")
+
+# Linear Regression 
+linear_model <- lm_weir60vssonar60(chignik)
+summary(linear_model)# show results
+
+#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
+coho2017weir60sonar60_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+
+#graph
+coho2017weir60sonar60_graph <- graph_weirvssonar(chignik, linear_model)
+ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
+       dpi=600, height=6, width=6, units="in")
+
+this_year <- 2018
+chignik <- data_given %>% 
+  dplyr::select(-ten_minute) %>% 
+  filter(year == this_year, species == this_species) %>%
+  spread(method, sixty_minute) %>%
+  rename(sonar = "didson sonar")
+
+# Linear Regression 
+linear_model <- lm_weir60vssonar60(chignik)
+summary(linear_model)# show results
+
+#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
+coho2018weir60sonar60_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+
+#graph
+coho2018weir60sonar60_graph <- graph_weirvssonar(chignik, linear_model)
+ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 
-graph_weirvssonar <- function(data, linear_model) { #, newpoint){
-  
-  data <- chignik
-  #Use to make 95% CI and PI 
-  minweir <- min(data$weir, na.rm = TRUE)
-  maxweir <- max(data$weir, na.rm = TRUE)
-  predx <- data.frame(weir = seq(from = minweir, to = maxweir, by = (maxweir-minweir)/19))
-  
-  # ... confidence interval
-  conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
-  # ... prediction interval
-  pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
-  
-  g.pred <- ggplot(pred.int, aes(x = weir, y = fit)) +
-    geom_point(data = data, aes(x = weir, y = sonar)) + #plots all the points
-    #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
-    geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
-    geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
-    geom_abline(intercept = 0, slope = 1) + #line y = x for reference
-    theme_bw() +
-    theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
-    xlab("weir 60 minute per hour count") +
-    ylab("sonar 60 minute per hour count") +
-    ggtitle(paste0(this_year, " 60 min/hr ", this_species, " weir vs sonar"))
-  g.pred  
-}
+
+## total fish
+this_species <- "total"
+time_interval <- "weir60sonar60"
+this_year <- 2017
+chignik <- total_fish %>% 
+  dplyr::select(-ten_minute) %>% 
+  filter(year == this_year) %>%
+  filter(date != "2017-09-03") %>% # This date had outliers for numbers of fish for the sonar. 
+  spread(method, sixty_minute) %>%
+  rename(sonar = "didson sonar")
+
+# Linear Regression 
+linear_model <- lm_weir60vssonar60(chignik)
+summary(linear_model)# show results
+
+#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
+total2017weir60sonar60_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+
+#graph
+total2017weir60sonar60_graph <- graph_weirvssonar(chignik, linear_model)
+ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
+       dpi=600, height=6, width=6, units="in")
+
+this_year <- 2018
+chignik <- total_fish %>% 
+  dplyr::select(-ten_minute) %>% 
+  filter(year == this_year) %>%
+  spread(method, sixty_minute) %>%
+  rename(sonar = "didson sonar")
+
+# Linear Regression 
+linear_model <- lm_weir60vssonar60(chignik)
+summary(linear_model)# show results
+
+#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
+total2018weir60sonar60_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+
+#graph
+total2018weir60sonar60_graph <- graph_weirvssonar(chignik, linear_model)
+ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
+       dpi=600, height=6, width=6, units="in")
+
+#cowplots
+
+sockeyeweir60sonar60graphs <- cowplot::plot_grid(sock2017weir60sonar60_graph, sock2018weir60sonar60_graph, scale = c(1,1))
+#sockeyesonar2017graphs <- cowplot::plot_grid(sock2017sonar_graph, sock2017sonar_graph_outlier, scale = c(1,1))
+cohoweir60sonar60graphs <- cowplot::plot_grid(coho2017weir60sonar60_graph, coho2018weir60sonar60_graph, scale = c(1,1))
+#cohosonar2017graphs <- cowplot::plot_grid(coho2017sonar_graph, coho2017sonar_graph_outlier, scale = c(1,1))
+totalweir60sonar60graphs <- cowplot::plot_grid(total2017weir60sonar60_graph, total2018weir60sonar60_graph, scale = c(1,1))
+#totalsonar2017graphs <- cowplot::plot_grid(total2017sonar_graph, total2017sonar_graph_outlier, scale = c(1,1))
+
+weir60sonar60graphs <- cowplot::plot_grid(sockeyeweir60sonar60graphs, cohoweir60sonar60graphs, totalweir60sonar60graphs, ncol = 1)
+#withandwithout_outliers <- cowplot::plot_grid(sockeyesonar2017graphs, cohosonar2017graphs, totalsonar2017graphs, ncol = 3)
+
+#pvalues
+
+sock2017weir60sonar60_pvalue 
+sock2018weir60sonar60_pvalue 
+coho2017weir60sonar60_pvalue 
+coho2018weir60sonar60_pvalue 
+total2017weir60sonar60_pvalue 
+total2018weir60sonar60_pvalue 
 
 
 #####10 minute weir vs 10 minute sonar
-
 
 summary(linear_model) # show results
 (adj_r2 = format(summary(linear_model)$adj.r.squared, digits = 3))

@@ -102,8 +102,8 @@ graph_template <- function(data){
 
 lm_10vs60 <- function(data){
   linear_model <- lm(ten_minute ~ sixty_minute , data = data)
-  layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
-  plot(linear_model)
+  #layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
+  #plot(linear_model)
   return(linear_model)
 }
 
@@ -115,9 +115,9 @@ lm_60vs10 <- function(data){
 }
 
 lm_weir60vssonar60 <- function(data){
-  linear_model <- lm(weir ~ sonar , data = data)
-  layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
-  plot(linear_model)
+  linear_model <- lm(sonar ~ weir , data = data)
+  #layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
+  #plot(linear_model)
   return(linear_model)
 }
 lm_weir10vssonar10 <- function(data){
