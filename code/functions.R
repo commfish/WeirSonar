@@ -46,6 +46,31 @@ graph_10vs60 <- function(data, linear_model) { #, newpoint){
   g.pred  
 }
 
+graph_weirvssonar <- function(data, linear_model) { #, newpoint){
+  #Use to make 95% CI and PI 
+  minweir <- min(data$weir, na.rm = TRUE)
+  maxweir <- max(data$weir, na.rm = TRUE)
+  predx <- data.frame(weir = seq(from = minweir, to = maxweir, by = (maxweir-minweir)/19))
+  
+  # ... confidence interval
+  conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
+  # ... prediction interval
+  pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
+  
+  g.pred <- ggplot(pred.int, aes(x = weir, y = fit)) +
+    geom_point(data = data, aes(x = weir, y = sonar)) + #plots all the points
+    #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
+    geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
+    geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
+    geom_abline(intercept = 0, slope = 1) + #line y = x for reference
+    theme_bw() +
+    theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
+    xlab("weir 60 minute per hour count") +
+    ylab("sonar 60 minute per hour count") +
+    ggtitle(paste0(this_year, " 60 min/hr ", this_species, " weir vs sonar"))
+  g.pred  
+}
+
 graph_template <- function(data){
   # Linear Regression 
   linear_model<- lm(dep ~ indep , data=data)
@@ -88,6 +113,7 @@ lm_60vs10 <- function(data){
   plot(linear_model)
   return(linear_model)
 }
+
 lm_weir60vssonar60 <- function(data){
   linear_model <- lm(weir ~ sonar , data = data)
   layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
