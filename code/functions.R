@@ -101,14 +101,14 @@ graph_template <- function(data){
 #note data will have to be filtered and arranged appropriately.
 
 lm_10vs60 <- function(data){
-  linear_model <- lm(ten_minute ~ sixty_minute , data = data)
-  #layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
-  #plot(linear_model)
+  linear_model <- lm(ten_minute ~ sixty_minute, data = data)
+  layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
+  plot(linear_model)
   return(linear_model)
 }
 
 lm_60vs10 <- function(data){
-  linear_model <- lm(sixty_minute ~ ten_minute , data = data)
+  linear_model <- lm(sixty_minute ~ ten_minute, data = data)
   layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
   plot(linear_model)
   return(linear_model)

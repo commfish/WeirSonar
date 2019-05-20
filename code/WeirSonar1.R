@@ -22,17 +22,23 @@ data_given <- read_csv('H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_son
 unique(data_given$species)
 
 data_given  <- data_given  %>% 
-  filter(species %in% c("sockeye", "coho")) %>% 
   mutate(date = as.Date(date, "%m/%d/%Y"),
-         year = format(date, "%Y")) 
+         year = factor(format(date, "%Y"))) 
 
 total_fish  <- data_given  %>% 
-  group_by(date, method) %>%
+  group_by(date, year, method) %>%
   summarise(ten_minute = sum(ten_minute),
-            sixty_minute = sum(sixty_minute))
-total_fish  <- total_fish  %>% 
-  mutate(year = format(date, "%Y"),
-         species = "total fish")
+            sixty_minute = sum(sixty_minute),
+            proportion_of_files_available = mean(proportion_of_files_available)) %>% 
+  mutate(species = "total")
+
+data_given <- union(data_given, total_fish)
+#data_given <- bind_rows(data_given, total_fish)
+
+data_given  <- data_given  %>% 
+  filter(species %in% c("sockeye", "coho", "total"))
+  #filter(species %in% c("Chinook", "chum", "dolly varden"))
+  #filter(species == "pink")
 
 # analysis ----
 set.seed(1123)
@@ -71,6 +77,16 @@ regressions%>%
 # gridded
 #https://i.stack.imgur.com/vtrWf.png
 
+(fish_grid <- ggplot(data_given , aes(x = sixty_minute, y = ten_minute)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1) + #line y = x for reference
+  geom_smooth(method=lm, se=TRUE) +
+  theme(panel.grid.major = element_line("lightgray",0.5),
+        panel.grid.minor = element_line("lightgray",0.25)) + 
+  ggtitle("60 min vs 10 min") +
+  facet_grid(method ~ species))
+
+
 sockeyedat <- data_given %>% filter(species == "sockeye")
 
 sockeye_grid <- ggplot(sockeyedat, aes(x = sixty_minute, y = ten_minute)) +
@@ -93,6 +109,17 @@ coho_grid <- ggplot(cohodat, aes(x = sixty_minute, y = ten_minute)) +
   ggtitle("Coho 60 min vs 10 min") +
   facet_grid(method ~ year) 
 
+totaldat <- data_given %>% filter(species == "total")
+
+total_grid <- ggplot(totaldat, aes(x = sixty_minute, y = ten_minute)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1) + #line y = x for reference
+  geom_smooth(method=lm, se=TRUE) +
+  theme(panel.grid.major = element_line("lightgray",0.5),
+        panel.grid.minor = element_line("lightgray",0.25)) + 
+  ggtitle("total 60 min vs 10 min") +
+  facet_grid(method ~ year) 
+
 #Individual regression diagnositics and regression graphs these also have prediction intervals built it 
 
 ##Sockeye
@@ -106,12 +133,13 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-sock2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+(sock2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
   
 #graph
-sock2017weir_graph <- graph_10vs60(chignik, linear_model)
+(sock2017weir_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
@@ -120,13 +148,14 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
+summary(linear_model)# show results 
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-sock2018weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+(sock2018weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-sock2018weir_graph <- graph_10vs60(chignik, linear_model)
+(sock2018weir_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
@@ -140,13 +169,14 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
+summary(linear_model)# show results 
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-sock2017sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+(sock2017sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-sock2017sonar_graph <- graph_10vs60(chignik, linear_model)
+(sock2017sonar_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
@@ -155,13 +185,15 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
+summary(linear_model)# show results 
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+#This does not pass normality tests, however we will you the relationship formed without the outlier. 
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-sock2017sonar_pvalue_outlier <- pvalue_of_t_test_slope_eq_1(linear_model)
+(sock2017sonar_pvalue_outlier <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-sock2017sonar_graph_outlier <- graph_10vs60(chignik, linear_model)
+(sock2017sonar_graph_outlier <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, "_outlier.png"),
        dpi=600, height=6, width=6, units="in")
 
@@ -171,13 +203,14 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
+summary(linear_model)# show results 
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-sock2018sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+(sock2018sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-sock2018sonar_graph <- graph_10vs60(chignik, linear_model)
+(sock2018sonar_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
@@ -190,13 +223,48 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
+summary(linear_model)# show results 
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+#Residuals are not normally distributed. Which may be okay since we have a robust sample size, 
+# however there is a violation of homoscedasticity.
+#https://blog.minitab.com/blog/adventures-in-statistics-2/how-important-are-normal-residuals-in-regression-analysis
+#https://www.quora.com/Whats-the-impact-when-residuals-dont-follow-a-normal-distribution-in-a-linear-regression-model
+
+#log transforms (plus 1 so we don't have log(0)) don't ameliorate this issue but a squareroot transform does on both x and y.
+chignik <- chignik  %>% mutate(sqrt_ten_minute = sqrt(ten_minute), sqrt_sixty_minute = sqrt(sixty_minute))
+
+linear_model <- lm(sqrt_ten_minute ~ sqrt_sixty_minute, data = chignik)
+layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
+plot(linear_model)
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-coho2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+(coho2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-coho2017weir_graph <- graph_10vs60(chignik, linear_model)
+
+data <- chignik
+minsqrt_sixty_minute <- min(data$sqrt_sixty_minute, na.rm = TRUE)
+maxsqrt_sixty_minute <- max(data$sqrt_sixty_minute, na.rm = TRUE)
+predx <- data.frame(sqrt_sixty_minute = seq(from = minsqrt_sixty_minute, to = maxsqrt_sixty_minute, by = (maxsqrt_sixty_minute-minsqrt_sixty_minute)/19))
+
+# ... confidence interval
+conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
+# ... prediction interval
+pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
+
+g.pred <- ggplot(pred.int, aes(x = sqrt_sixty_minute, y = fit)) +
+  geom_point(data = data, aes(x = sqrt_sixty_minute, y = sqrt_ten_minute)) + #plots all the points
+  #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
+  geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
+  geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
+  geom_abline(intercept = 0, slope = 1) + #line y = x for reference
+  theme_bw() +
+  theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
+  xlab("Squareroot of 60 minute per hour count") +
+  ylab("Squareroot of 10 minute per hour estimate") +
+  ggtitle(paste0(this_year, " ", this_method, " ", this_species, " squareroot of 10 min. vs squareroot of 60 min."))
+g.pred  
+#coho2017weir_graph <- graph_10vs60(chignik, linear_model)
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
@@ -205,13 +273,15 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
+summary(linear_model)# show results 
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-coho2018weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+(coho2018weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-coho2018weir_graph <- graph_10vs60(chignik, linear_model)
+(coho2018weir_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
@@ -226,13 +296,15 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
+summary(linear_model)# show results 
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+#Residuals are not normally distributed.
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-coho2017sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+(coho2017sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-coho2017sonar_graph <- graph_10vs60(chignik, linear_model)
+(coho2017sonar_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 ### coho 2017 sonar with outlier
@@ -240,13 +312,14 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
+summary(linear_model)# show results 
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-coho2017sonar_pvalue_outlier <- pvalue_of_t_test_slope_eq_1(linear_model)
+(coho2017sonar_pvalue_outlier <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-coho2017sonar_graph_outlier <- graph_10vs60(chignik, linear_model)
+(coho2017sonar_graph_outlier <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, "_outlier.png"),
        dpi=600, height=6, width=6, units="in")
 
@@ -255,23 +328,21 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
+summary(linear_model)# show results 
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-coho2018sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+(coho2018sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-coho2018sonar_graph <- graph_10vs60(chignik, linear_model)
+(coho2018sonar_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 
-
-
-
 ## For total fish##############
 #set up particular data
-this_species <- "total fish"
+this_species <- "total"
 this_method <- "weir"
 this_year <- 2017
 chignik <- total_fish %>% filter(year == this_year, species == this_species, method == this_method) 
@@ -279,12 +350,13 @@ chignik <- total_fish %>% filter(year == this_year, species == this_species, met
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-total2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+(total2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-total2017weir_graph <- graph_10vs60(chignik, linear_model)
+(total2017weir_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
@@ -294,19 +366,20 @@ chignik <- total_fish  %>% filter(year == this_year, species == this_species, me
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-total2018weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+(total2018weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-total2018weir_graph <- graph_10vs60(chignik, linear_model)
+(total2018weir_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 
 ##sonar
 #set up particular data
-this_species <- "total fish"
+this_species <- "total"
 this_method <- "didson sonar"
 this_year <- 2017
 chignik <- total_fish  %>% filter(year == this_year, species == this_species, method == this_method)  %>% 
@@ -315,12 +388,13 @@ chignik <- total_fish  %>% filter(year == this_year, species == this_species, me
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-total2017sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+(total2017sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-total2017sonar_graph <- graph_10vs60(chignik, linear_model)
+(total2017sonar_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 ### total 2017 sonar with outlier
@@ -329,12 +403,13 @@ chignik <- total_fish  %>% filter(year == this_year, species == this_species, me
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-total2017sonar_pvalue_outlier <- pvalue_of_t_test_slope_eq_1(linear_model)
+(total2017sonar_pvalue_outlier <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-total2017sonar_graph_outlier <- graph_10vs60(chignik, linear_model)
+(total2017sonar_graph_outlier <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, "_outlier.png"),
        dpi=600, height=6, width=6, units="in")
 
@@ -344,12 +419,13 @@ chignik <- total_fish  %>% filter(year == this_year, species == this_species, me
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results
+shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-total2018sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+(total2018sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-total2018sonar_graph <- graph_10vs60(chignik, linear_model)
+(total2018sonar_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
