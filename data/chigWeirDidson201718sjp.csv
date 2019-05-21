@@ -1,0 +1,553 @@
+method,date,proportion_of_files_available,species,ten_minute,sixty_minute
+didson sonar,8/1/2018,0.96,sockeye,6168,6717
+didson sonar,8/2/2018,0.97,sockeye,6324,5744
+didson sonar,8/3/2018,0.8,sockeye,4782,2786
+didson sonar,8/4/2018,1,sockeye,8058,10566
+didson sonar,8/5/2018,1,sockeye,5409,5418
+didson sonar,8/6/2018,1,sockeye,6296,5706
+didson sonar,8/7/2018,1,sockeye,3161,3633
+didson sonar,8/8/2018,1,sockeye,2262,1798
+didson sonar,8/9/2018,1,sockeye,6299,5975
+didson sonar,8/10/2018,1,sockeye,2420,2544
+didson sonar,8/11/2018,1,sockeye,3465,2496
+didson sonar,8/12/2018,0.9,sockeye,867,1098
+didson sonar,8/13/2018,1,sockeye,4438,3915
+didson sonar,8/14/2018,1,sockeye,2146,2527
+didson sonar,8/15/2018,1,sockeye,2383,2527
+didson sonar,8/16/2018,1,sockeye,5080,5126
+didson sonar,8/17/2018,1,sockeye,1505,1761
+didson sonar,8/18/2018,1,sockeye,594,805
+didson sonar,8/1/2018,0.96,Chinook,0,0
+didson sonar,8/2/2018,0.97,Chinook,0,0
+didson sonar,8/3/2018,0.8,Chinook,0,0
+didson sonar,8/4/2018,1,Chinook,0,0
+didson sonar,8/5/2018,1,Chinook,0,0
+didson sonar,8/6/2018,1,Chinook,0,0
+didson sonar,8/7/2018,1,Chinook,0,0
+didson sonar,8/8/2018,1,Chinook,0,0
+didson sonar,8/9/2018,1,Chinook,0,0
+didson sonar,8/10/2018,1,Chinook,0,0
+didson sonar,8/11/2018,1,Chinook,0,0
+didson sonar,8/12/2018,0.9,Chinook,0,0
+didson sonar,8/13/2018,1,Chinook,0,0
+didson sonar,8/14/2018,1,Chinook,0,0
+didson sonar,8/15/2018,1,Chinook,0,0
+didson sonar,8/16/2018,1,Chinook,0,0
+didson sonar,8/17/2018,1,Chinook,0,0
+didson sonar,8/18/2018,1,Chinook,0,0
+didson sonar,8/1/2018,0.96,pink,0,0
+didson sonar,8/2/2018,0.97,pink,0,0
+didson sonar,8/3/2018,0.8,pink,0,0
+didson sonar,8/4/2018,1,pink,0,0
+didson sonar,8/5/2018,1,pink,141,141
+didson sonar,8/6/2018,1,pink,154,140
+didson sonar,8/7/2018,1,pink,73,84
+didson sonar,8/8/2018,1,pink,125,99
+didson sonar,8/9/2018,1,pink,573,543
+didson sonar,8/10/2018,1,pink,220,231
+didson sonar,8/11/2018,1,pink,315,227
+didson sonar,8/12/2018,0.9,pink,25,31
+didson sonar,8/13/2018,1,pink,113,100
+didson sonar,8/14/2018,1,pink,49,57
+didson sonar,8/15/2018,1,pink,47,50
+didson sonar,8/16/2018,1,pink,87,88
+didson sonar,8/17/2018,1,pink,17,20
+didson sonar,8/18/2018,1,pink,6,8
+didson sonar,8/1/2018,0.96,coho,0,0
+didson sonar,8/2/2018,0.97,coho,0,0
+didson sonar,8/3/2018,0.8,coho,0,0
+didson sonar,8/4/2018,1,coho,0,0
+didson sonar,8/5/2018,1,coho,0,0
+didson sonar,8/6/2018,1,coho,0,0
+didson sonar,8/7/2018,1,coho,0,0
+didson sonar,8/8/2018,1,coho,49,39
+didson sonar,8/9/2018,1,coho,286,272
+didson sonar,8/10/2018,1,coho,54,57
+didson sonar,8/11/2018,1,coho,0,0
+didson sonar,8/12/2018,0.9,coho,14,18
+didson sonar,8/13/2018,1,coho,81,72
+didson sonar,8/14/2018,1,coho,44,52
+didson sonar,8/15/2018,1,coho,54,57
+didson sonar,8/16/2018,1,coho,125,126
+didson sonar,8/17/2018,1,coho,43,51
+didson sonar,8/18/2018,1,coho,17,24
+didson sonar,8/1/2018,0.96,chum,0,0
+didson sonar,8/2/2018,0.97,chum,0,0
+didson sonar,8/3/2018,0.8,chum,0,0
+didson sonar,8/4/2018,1,chum,0,0
+didson sonar,8/5/2018,1,chum,0,0
+didson sonar,8/6/2018,1,chum,0,0
+didson sonar,8/7/2018,1,chum,0,0
+didson sonar,8/8/2018,1,chum,0,0
+didson sonar,8/9/2018,1,chum,0,0
+didson sonar,8/10/2018,1,chum,0,0
+didson sonar,8/11/2018,1,chum,0,0
+didson sonar,8/12/2018,0.9,chum,0,0
+didson sonar,8/13/2018,1,chum,0,0
+didson sonar,8/14/2018,1,chum,0,0
+didson sonar,8/15/2018,1,chum,0,0
+didson sonar,8/16/2018,1,chum,0,0
+didson sonar,8/17/2018,1,chum,0,0
+didson sonar,8/18/2018,1,chum,0,0
+didson sonar,8/1/2018,0.96,dolly varden,0,0
+didson sonar,8/2/2018,0.97,dolly varden,0,0
+didson sonar,8/3/2018,0.8,dolly varden,0,0
+didson sonar,8/4/2018,1,dolly varden,0,0
+didson sonar,8/5/2018,1,dolly varden,0,0
+didson sonar,8/6/2018,1,dolly varden,0,0
+didson sonar,8/7/2018,1,dolly varden,0,0
+didson sonar,8/8/2018,1,dolly varden,0,0
+didson sonar,8/9/2018,1,dolly varden,0,0
+didson sonar,8/10/2018,1,dolly varden,0,0
+didson sonar,8/11/2018,1,dolly varden,0,0
+didson sonar,8/12/2018,0.9,dolly varden,0,0
+didson sonar,8/13/2018,1,dolly varden,0,0
+didson sonar,8/14/2018,1,dolly varden,0,0
+didson sonar,8/15/2018,1,dolly varden,0,0
+didson sonar,8/16/2018,1,dolly varden,0,0
+didson sonar,8/17/2018,1,dolly varden,0,0
+didson sonar,8/18/2018,1,dolly varden,0,0
+weir,8/1/2018,0.96,sockeye,4921,4685
+weir,8/2/2018,0.97,sockeye,2221,1972
+weir,8/3/2018,0.8,sockeye,2611,2632
+weir,8/4/2018,1,sockeye,10205,8860
+weir,8/5/2018,1,sockeye,5632,5798
+weir,8/6/2018,1,sockeye,5625,5889
+weir,8/7/2018,1,sockeye,4933,3704
+weir,8/8/2018,1,sockeye,1837,1905
+weir,8/9/2018,1,sockeye,6243,7094
+weir,8/10/2018,1,sockeye,1708,2902
+weir,8/11/2018,1,sockeye,2249,2536
+weir,8/12/2018,0.9,sockeye,730,686
+weir,8/13/2018,1,sockeye,3494,3262
+weir,8/14/2018,1,sockeye,1486,1390
+weir,8/15/2018,1,sockeye,2328,2386
+weir,8/16/2018,1,sockeye,3397,3032
+weir,8/17/2018,1,sockeye,542,867
+weir,8/18/2018,1,sockeye,249,266
+weir,8/1/2018,0.96,Chinook,6,5
+weir,8/2/2018,0.97,Chinook,1,3
+weir,8/3/2018,0.8,Chinook,6,1
+weir,8/4/2018,1,Chinook,0,3
+weir,8/5/2018,1,Chinook,6,5
+weir,8/6/2018,1,Chinook,0,7
+weir,8/7/2018,1,Chinook,0,3
+weir,8/8/2018,1,Chinook,0,0
+weir,8/9/2018,1,Chinook,0,3
+weir,8/10/2018,1,Chinook,12,7
+weir,8/11/2018,1,Chinook,12,5
+weir,8/12/2018,0.9,Chinook,7,2
+weir,8/13/2018,1,Chinook,0,4
+weir,8/14/2018,1,Chinook,0,2
+weir,8/15/2018,1,Chinook,0,1
+weir,8/16/2018,1,Chinook,0,3
+weir,8/17/2018,1,Chinook,0,0
+weir,8/18/2018,1,Chinook,0,1
+weir,8/1/2018,0.96,pink,24,12
+weir,8/2/2018,0.97,pink,13,17
+weir,8/3/2018,0.8,pink,6,2
+weir,8/4/2018,1,pink,62,34
+weir,8/5/2018,1,pink,24,11
+weir,8/6/2018,1,pink,6,26
+weir,8/7/2018,1,pink,18,10
+weir,8/8/2018,1,pink,6,4
+weir,8/9/2018,1,pink,54,26
+weir,8/10/2018,1,pink,12,9
+weir,8/11/2018,1,pink,18,9
+weir,8/12/2018,0.9,pink,32,26
+weir,8/13/2018,1,pink,24,9
+weir,8/14/2018,1,pink,0,2
+weir,8/15/2018,1,pink,18,33
+weir,8/16/2018,1,pink,8,29
+weir,8/17/2018,1,pink,0,2
+weir,8/18/2018,1,pink,6,0
+weir,8/1/2018,0.96,coho,6,0
+weir,8/2/2018,0.97,coho,0,0
+weir,8/3/2018,0.8,coho,0,0
+weir,8/4/2018,1,coho,0,0
+weir,8/5/2018,1,coho,6,2
+weir,8/6/2018,1,coho,0,7
+weir,8/7/2018,1,coho,0,6
+weir,8/8/2018,1,coho,1,6
+weir,8/9/2018,1,coho,0,8
+weir,8/10/2018,1,coho,25,33
+weir,8/11/2018,1,coho,18,18
+weir,8/12/2018,0.9,coho,12,8
+weir,8/13/2018,1,coho,37,41
+weir,8/14/2018,1,coho,66,52
+weir,8/15/2018,1,coho,84,126
+weir,8/16/2018,1,coho,322,190
+weir,8/17/2018,1,coho,36,10
+weir,8/18/2018,1,coho,18,74
+weir,8/1/2018,0.96,chum,0,3
+weir,8/2/2018,0.97,chum,0,1
+weir,8/3/2018,0.8,chum,6,1
+weir,8/4/2018,1,chum,0,1
+weir,8/5/2018,1,chum,0,1
+weir,8/6/2018,1,chum,6,2
+weir,8/7/2018,1,chum,0,2
+weir,8/8/2018,1,chum,0,5
+weir,8/9/2018,1,chum,0,12
+weir,8/10/2018,1,chum,0,5
+weir,8/11/2018,1,chum,0,3
+weir,8/12/2018,0.9,chum,0,0
+weir,8/13/2018,1,chum,0,4
+weir,8/14/2018,1,chum,0,1
+weir,8/15/2018,1,chum,0,0
+weir,8/16/2018,1,chum,0,4
+weir,8/17/2018,1,chum,0,1
+weir,8/18/2018,1,chum,0,0
+weir,8/1/2018,0.96,dolly varden,12,5
+weir,8/2/2018,0.97,dolly varden,0,3
+weir,8/3/2018,0.8,dolly varden,6,6
+weir,8/4/2018,1,dolly varden,18,10
+weir,8/5/2018,1,dolly varden,30,10
+weir,8/6/2018,1,dolly varden,6,19
+weir,8/7/2018,1,dolly varden,6,16
+weir,8/8/2018,1,dolly varden,12,7
+weir,8/9/2018,1,dolly varden,13,18
+weir,8/10/2018,1,dolly varden,12,7
+weir,8/11/2018,1,dolly varden,0,4
+weir,8/12/2018,0.9,dolly varden,6,5
+weir,8/13/2018,1,dolly varden,6,2
+weir,8/14/2018,1,dolly varden,0,5
+weir,8/15/2018,1,dolly varden,0,4
+weir,8/16/2018,1,dolly varden,0,4
+weir,8/17/2018,1,dolly varden,0,1
+weir,8/18/2018,1,dolly varden,0,3
+didson sonar,8/10/2017,0.83,sockeye,1290,1738
+didson sonar,8/11/2017,0.92,sockeye,1614,1483
+didson sonar,8/12/2017,1,sockeye,1582,1874
+didson sonar,8/13/2017,0.81,sockeye,2341,2490
+didson sonar,8/14/2017,1,sockeye,4320,3797
+didson sonar,8/15/2017,1,sockeye,2392,2560
+didson sonar,8/16/2017,1,sockeye,2487,2929
+didson sonar,8/17/2017,1,sockeye,2464,2746
+didson sonar,8/18/2017,0.9,sockeye,641,629
+didson sonar,8/19/2017,1,sockeye,2439,2557
+didson sonar,8/20/2017,1,sockeye,4943,4984
+didson sonar,8/21/2017,1,sockeye,5534,5131
+didson sonar,8/22/2017,1,sockeye,2665,3256
+didson sonar,8/23/2017,1,sockeye,2999,2847
+didson sonar,8/24/2017,1,sockeye,4988,4175
+didson sonar,8/25/2017,1,sockeye,2770,2717
+didson sonar,8/26/2017,1,sockeye,1471,1805
+didson sonar,8/27/2017,1,sockeye,1515,1594
+didson sonar,8/28/2017,1,sockeye,1021,1208
+didson sonar,8/29/2017,1,sockeye,1575,1419
+didson sonar,8/30/2017,1,sockeye,2307,2285
+didson sonar,8/31/2017,0.83,sockeye,1968,1704
+didson sonar,9/1/2017,0.66,sockeye,1587,1572
+didson sonar,9/2/2017,1,sockeye,1897,2136
+didson sonar,9/3/2017,1,sockeye,7092,1798
+didson sonar,9/4/2017,1,sockeye,3372,3312
+didson sonar,9/5/2017,1,sockeye,5856,6131
+didson sonar,9/6/2017,1,sockeye,3640,3838
+didson sonar,8/10/2017,0.83,Chinook,0,0
+didson sonar,8/11/2017,0.92,Chinook,0,0
+didson sonar,8/12/2017,1,Chinook,0,0
+didson sonar,8/13/2017,0.81,Chinook,0,0
+didson sonar,8/14/2017,1,Chinook,0,0
+didson sonar,8/15/2017,1,Chinook,0,0
+didson sonar,8/16/2017,1,Chinook,0,0
+didson sonar,8/17/2017,1,Chinook,0,0
+didson sonar,8/18/2017,0.9,Chinook,0,0
+didson sonar,8/19/2017,1,Chinook,0,0
+didson sonar,8/20/2017,1,Chinook,0,0
+didson sonar,8/21/2017,1,Chinook,0,0
+didson sonar,8/22/2017,1,Chinook,0,0
+didson sonar,8/23/2017,1,Chinook,0,0
+didson sonar,8/24/2017,1,Chinook,0,0
+didson sonar,8/25/2017,1,Chinook,0,0
+didson sonar,8/26/2017,1,Chinook,0,0
+didson sonar,8/27/2017,1,Chinook,0,0
+didson sonar,8/28/2017,1,Chinook,0,0
+didson sonar,8/29/2017,1,Chinook,0,0
+didson sonar,8/30/2017,1,Chinook,0,0
+didson sonar,8/31/2017,0.83,Chinook,0,0
+didson sonar,9/1/2017,0.66,Chinook,0,0
+didson sonar,9/2/2017,1,Chinook,0,0
+didson sonar,9/3/2017,1,Chinook,0,0
+didson sonar,9/4/2017,1,Chinook,0,0
+didson sonar,9/5/2017,1,Chinook,0,0
+didson sonar,9/6/2017,1,Chinook,0,0
+didson sonar,8/10/2017,0.83,pink,1146,1545
+didson sonar,8/11/2017,0.92,pink,1434,1318
+didson sonar,8/12/2017,1,pink,1406,1665
+didson sonar,8/13/2017,0.81,pink,2081,2213
+didson sonar,8/14/2017,1,pink,3840,3375
+didson sonar,8/15/2017,1,pink,2126,2276
+didson sonar,8/16/2017,1,pink,2211,2604
+didson sonar,8/17/2017,1,pink,5330,5938
+didson sonar,8/18/2017,0.9,pink,5587,5484
+didson sonar,8/19/2017,1,pink,6293,6598
+didson sonar,8/20/2017,1,pink,5853,5902
+didson sonar,8/21/2017,1,pink,9852,9134
+didson sonar,8/22/2017,1,pink,7593,9277
+didson sonar,8/23/2017,1,pink,5519,5239
+didson sonar,8/24/2017,1,pink,6175,5169
+didson sonar,8/25/2017,1,pink,5466,5361
+didson sonar,8/26/2017,1,pink,5367,6584
+didson sonar,8/27/2017,1,pink,2739,2882
+didson sonar,8/28/2017,1,pink,3244,3840
+didson sonar,8/29/2017,1,pink,9815,8839
+didson sonar,8/30/2017,1,pink,12142,12023
+didson sonar,8/31/2017,0.83,pink,8658,7498
+didson sonar,9/1/2017,0.66,pink,5564,5511
+didson sonar,9/2/2017,1,pink,5194,5847
+didson sonar,9/3/2017,1,pink,13593,3447
+didson sonar,9/4/2017,1,pink,4686,4602
+didson sonar,9/5/2017,1,pink,1281,1341
+didson sonar,9/6/2017,1,pink,1675,1766
+didson sonar,8/10/2017,0.83,coho,0,0
+didson sonar,8/11/2017,0.92,coho,0,0
+didson sonar,8/12/2017,1,coho,0,0
+didson sonar,8/13/2017,0.81,coho,0,0
+didson sonar,8/14/2017,1,coho,0,0
+didson sonar,8/15/2017,1,coho,0,0
+didson sonar,8/16/2017,1,coho,0,0
+didson sonar,8/17/2017,1,coho,0,0
+didson sonar,8/18/2017,0.9,coho,0,0
+didson sonar,8/19/2017,1,coho,52,55
+didson sonar,8/20/2017,1,coho,130,131
+didson sonar,8/21/2017,1,coho,322,299
+didson sonar,8/22/2017,1,coho,308,376
+didson sonar,8/23/2017,1,coho,368,349
+didson sonar,8/24/2017,1,coho,633,530
+didson sonar,8/25/2017,1,coho,866,849
+didson sonar,8/26/2017,1,coho,1082,1327
+didson sonar,8/27/2017,1,coho,1398,1471
+didson sonar,8/28/2017,1,coho,991,1173
+didson sonar,8/29/2017,1,coho,1696,1528
+didson sonar,8/30/2017,1,coho,3611,3576
+didson sonar,8/31/2017,0.83,coho,3936,3408
+didson sonar,9/1/2017,0.66,coho,3703,3667
+didson sonar,9/2/2017,1,coho,4969,5593
+didson sonar,9/3/2017,1,coho,14553,3690
+didson sonar,9/4/2017,1,coho,5694,5592
+didson sonar,9/5/2017,1,coho,7503,7855
+didson sonar,9/6/2017,1,coho,6949,7326
+didson sonar,8/10/2017,0.83,chum,0,0
+didson sonar,8/11/2017,0.92,chum,0,0
+didson sonar,8/12/2017,1,chum,0,0
+didson sonar,8/13/2017,0.81,chum,0,0
+didson sonar,8/14/2017,1,chum,0,0
+didson sonar,8/15/2017,1,chum,0,0
+didson sonar,8/16/2017,1,chum,0,0
+didson sonar,8/17/2017,1,chum,0,0
+didson sonar,8/18/2017,0.9,chum,0,0
+didson sonar,8/19/2017,1,chum,0,0
+didson sonar,8/20/2017,1,chum,0,0
+didson sonar,8/21/2017,1,chum,0,0
+didson sonar,8/22/2017,1,chum,0,0
+didson sonar,8/23/2017,1,chum,0,0
+didson sonar,8/24/2017,1,chum,0,0
+didson sonar,8/25/2017,1,chum,0,0
+didson sonar,8/26/2017,1,chum,0,0
+didson sonar,8/27/2017,1,chum,0,0
+didson sonar,8/28/2017,1,chum,0,0
+didson sonar,8/29/2017,1,chum,0,0
+didson sonar,8/30/2017,1,chum,0,0
+didson sonar,8/31/2017,0.83,chum,0,0
+didson sonar,9/1/2017,0.66,chum,0,0
+didson sonar,9/2/2017,1,chum,0,0
+didson sonar,9/3/2017,1,chum,0,0
+didson sonar,9/4/2017,1,chum,0,0
+didson sonar,9/5/2017,1,chum,0,0
+didson sonar,9/6/2017,1,chum,0,0
+didson sonar,8/10/2017,0.83,dolly varden,0,0
+didson sonar,8/11/2017,0.92,dolly varden,0,0
+didson sonar,8/12/2017,1,dolly varden,0,0
+didson sonar,8/13/2017,0.81,dolly varden,0,0
+didson sonar,8/14/2017,1,dolly varden,0,0
+didson sonar,8/15/2017,1,dolly varden,0,0
+didson sonar,8/16/2017,1,dolly varden,0,0
+didson sonar,8/17/2017,1,dolly varden,0,0
+didson sonar,8/18/2017,0.9,dolly varden,0,0
+didson sonar,8/19/2017,1,dolly varden,0,0
+didson sonar,8/20/2017,1,dolly varden,0,0
+didson sonar,8/21/2017,1,dolly varden,0,0
+didson sonar,8/22/2017,1,dolly varden,0,0
+didson sonar,8/23/2017,1,dolly varden,0,0
+didson sonar,8/24/2017,1,dolly varden,0,0
+didson sonar,8/25/2017,1,dolly varden,0,0
+didson sonar,8/26/2017,1,dolly varden,0,0
+didson sonar,8/27/2017,1,dolly varden,0,0
+didson sonar,8/28/2017,1,dolly varden,0,0
+didson sonar,8/29/2017,1,dolly varden,0,0
+didson sonar,8/30/2017,1,dolly varden,0,0
+didson sonar,8/31/2017,0.83,dolly varden,0,0
+didson sonar,9/1/2017,0.66,dolly varden,0,0
+didson sonar,9/2/2017,1,dolly varden,0,0
+didson sonar,9/3/2017,1,dolly varden,0,0
+didson sonar,9/4/2017,1,dolly varden,0,0
+didson sonar,9/5/2017,1,dolly varden,0,0
+didson sonar,9/6/2017,1,dolly varden,0,0
+weir,8/10/2017,0.83,sockeye,1897,2372
+weir,8/11/2017,0.92,sockeye,2430,2011
+weir,8/12/2017,1,sockeye,2642,2668
+weir,8/13/2017,0.81,sockeye,5342,5543
+weir,8/14/2017,1,sockeye,4404,4277
+weir,8/15/2017,1,sockeye,2520,2593
+weir,8/16/2017,1,sockeye,2418,2073
+weir,8/17/2017,1,sockeye,3027,2711
+weir,8/18/2017,0.9,sockeye,2828,2245
+weir,8/19/2017,1,sockeye,2562,2328
+weir,8/20/2017,1,sockeye,2529,2469
+weir,8/21/2017,1,sockeye,2482,2107
+weir,8/22/2017,1,sockeye,1560,1784
+weir,8/23/2017,1,sockeye,1998,2290
+weir,8/24/2017,1,sockeye,2610,2542
+weir,8/25/2017,1,sockeye,834,900
+weir,8/26/2017,1,sockeye,2616,2597
+weir,8/27/2017,1,sockeye,2610,2215
+weir,8/28/2017,1,sockeye,1894,1960
+weir,8/29/2017,1,sockeye,2812,2599
+weir,8/30/2017,1,sockeye,2690,2289
+weir,8/31/2017,0.83,sockeye,3257,2706
+weir,9/1/2017,0.66,sockeye,2239,2511
+weir,9/2/2017,1,sockeye,2263,2089
+weir,9/3/2017,1,sockeye,1405,1323
+weir,9/4/2017,1,sockeye,774,1025
+weir,9/5/2017,1,sockeye,1021,960
+weir,9/6/2017,1,sockeye,764,772
+weir,8/10/2017,0.83,Chinook,6,8
+weir,8/11/2017,0.92,Chinook,6,12
+weir,8/12/2017,1,Chinook,12,11
+weir,8/13/2017,0.81,Chinook,0,12
+weir,8/14/2017,1,Chinook,12,13
+weir,8/15/2017,1,Chinook,12,9
+weir,8/16/2017,1,Chinook,18,7
+weir,8/17/2017,1,Chinook,0,6
+weir,8/18/2017,0.9,Chinook,6,9
+weir,8/19/2017,1,Chinook,1,4
+weir,8/20/2017,1,Chinook,12,9
+weir,8/21/2017,1,Chinook,0,2
+weir,8/22/2017,1,Chinook,0,2
+weir,8/23/2017,1,Chinook,0,3
+weir,8/24/2017,1,Chinook,0,4
+weir,8/25/2017,1,Chinook,1,2
+weir,8/26/2017,1,Chinook,6,3
+weir,8/27/2017,1,Chinook,0,6
+weir,8/28/2017,1,Chinook,0,1
+weir,8/29/2017,1,Chinook,0,5
+weir,8/30/2017,1,Chinook,0,2
+weir,8/31/2017,0.83,Chinook,0,3
+weir,9/1/2017,0.66,Chinook,0,0
+weir,9/2/2017,1,Chinook,0,2
+weir,9/3/2017,1,Chinook,0,0
+weir,9/4/2017,1,Chinook,0,0
+weir,9/5/2017,1,Chinook,0,0
+weir,9/6/2017,1,Chinook,0,0
+weir,8/10/2017,0.83,pink,564,993
+weir,8/11/2017,0.92,pink,436,557
+weir,8/12/2017,1,pink,329,477
+weir,8/13/2017,0.81,pink,546,764
+weir,8/14/2017,1,pink,696,835
+weir,8/15/2017,1,pink,800,1147
+weir,8/16/2017,1,pink,2072,2289
+weir,8/17/2017,1,pink,3364,4945
+weir,8/18/2017,0.9,pink,4131,4693
+weir,8/19/2017,1,pink,4817,4725
+weir,8/20/2017,1,pink,3707,6733
+weir,8/21/2017,1,pink,9552,8675
+weir,8/22/2017,1,pink,5887,6175
+weir,8/23/2017,1,pink,1953,2478
+weir,8/24/2017,1,pink,3362,4053
+weir,8/25/2017,1,pink,4328,4891
+weir,8/26/2017,1,pink,3514,4263
+weir,8/27/2017,1,pink,1507,1739
+weir,8/28/2017,1,pink,1499,1846
+weir,8/29/2017,1,pink,4525,6308
+weir,8/30/2017,1,pink,9693,9948
+weir,8/31/2017,0.83,pink,6050,6310
+weir,9/1/2017,0.66,pink,3166,3914
+weir,9/2/2017,1,pink,9477,6919
+weir,9/3/2017,1,pink,14888,14656
+weir,9/4/2017,1,pink,2549,2987
+weir,9/5/2017,1,pink,1582,1680
+weir,9/6/2017,1,pink,2210,1961
+weir,8/10/2017,0.83,coho,0,2
+weir,8/11/2017,0.92,coho,6,2
+weir,8/12/2017,1,coho,0,6
+weir,8/13/2017,0.81,coho,18,18
+weir,8/14/2017,1,coho,0,7
+weir,8/15/2017,1,coho,6,8
+weir,8/16/2017,1,coho,6,14
+weir,8/17/2017,1,coho,12,19
+weir,8/18/2017,0.9,coho,19,34
+weir,8/19/2017,1,coho,54,44
+weir,8/20/2017,1,coho,90,69
+weir,8/21/2017,1,coho,48,73
+weir,8/22/2017,1,coho,162,143
+weir,8/23/2017,1,coho,270,223
+weir,8/24/2017,1,coho,396,476
+weir,8/25/2017,1,coho,336,372
+weir,8/26/2017,1,coho,1301,1311
+weir,8/27/2017,1,coho,695,622
+weir,8/28/2017,1,coho,1024,742
+weir,8/29/2017,1,coho,1662,1904
+weir,8/30/2017,1,coho,4612,4509
+weir,8/31/2017,0.83,coho,5308,4769
+weir,9/1/2017,0.66,coho,4845,4150
+weir,9/2/2017,1,coho,3393,2586
+weir,9/3/2017,1,coho,4452,3680
+weir,9/4/2017,1,coho,1539,1586
+weir,9/5/2017,1,coho,1581,1588
+weir,9/6/2017,1,coho,1417,1407
+weir,8/10/2017,0.83,chum,6,4
+weir,8/11/2017,0.92,chum,6,5
+weir,8/12/2017,1,chum,6,5
+weir,8/13/2017,0.81,chum,60,25
+weir,8/14/2017,1,chum,6,10
+weir,8/15/2017,1,chum,6,9
+weir,8/16/2017,1,chum,0,2
+weir,8/17/2017,1,chum,6,5
+weir,8/18/2017,0.9,chum,0,7
+weir,8/19/2017,1,chum,6,3
+weir,8/20/2017,1,chum,6,6
+weir,8/21/2017,1,chum,12,13
+weir,8/22/2017,1,chum,7,15
+weir,8/23/2017,1,chum,30,16
+weir,8/24/2017,1,chum,12,10
+weir,8/25/2017,1,chum,7,15
+weir,8/26/2017,1,chum,14,15
+weir,8/27/2017,1,chum,12,16
+weir,8/28/2017,1,chum,18,23
+weir,8/29/2017,1,chum,18,15
+weir,8/30/2017,1,chum,13,13
+weir,8/31/2017,0.83,chum,48,31
+weir,9/1/2017,0.66,chum,61,31
+weir,9/2/2017,1,chum,18,21
+weir,9/3/2017,1,chum,18,6
+weir,9/4/2017,1,chum,6,4
+weir,9/5/2017,1,chum,12,8
+weir,9/6/2017,1,chum,6,8
+weir,8/10/2017,0.83,dolly varden,12,9
+weir,8/11/2017,0.92,dolly varden,0,2
+weir,8/12/2017,1,dolly varden,12,8
+weir,8/13/2017,0.81,dolly varden,18,10
+weir,8/14/2017,1,dolly varden,24,17
+weir,8/15/2017,1,dolly varden,30,22
+weir,8/16/2017,1,dolly varden,18,15
+weir,8/17/2017,1,dolly varden,10,12
+weir,8/18/2017,0.9,dolly varden,36,28
+weir,8/19/2017,1,dolly varden,12,10
+weir,8/20/2017,1,dolly varden,12,20
+weir,8/21/2017,1,dolly varden,18,10
+weir,8/22/2017,1,dolly varden,6,1
+weir,8/23/2017,1,dolly varden,0,2
+weir,8/24/2017,1,dolly varden,24,14
+weir,8/25/2017,1,dolly varden,1,4
+weir,8/26/2017,1,dolly varden,30,10
+weir,8/27/2017,1,dolly varden,24,12
+weir,8/28/2017,1,dolly varden,6,4
+weir,8/29/2017,1,dolly varden,12,14
+weir,8/30/2017,1,dolly varden,0,13
+weir,8/31/2017,0.83,dolly varden,6,4
+weir,9/1/2017,0.66,dolly varden,11,8
+weir,9/2/2017,1,dolly varden,0,5
+weir,9/3/2017,1,dolly varden,12,8
+weir,9/4/2017,1,dolly varden,12,7
+weir,9/5/2017,1,dolly varden,6,14
+weir,9/6/2017,1,dolly varden,0,17
