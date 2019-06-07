@@ -12,18 +12,26 @@ library(broom)#for cleaning up data, used in prediction
 library(caret)#used for cross validation 
 library(cowplot)
 library(purrr)
+library(stringr)
 source('code/functions.R')
 options(scipen=999)
 getwd()
 
 # data ----
-data_given <- read_csv('H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar\\data\\chigWeirDidson201718sjp.csv')
+data_given <- read_csv('H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar\\data\\chigWeirDidson201618sjp.csv')
 
-unique(data_given$species)
+#data_given <- read_csv('H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar\\data\\chigWeirDidson201718sjp.csv')
 
-data_given  <- data_given  %>% 
-  mutate(date = as.Date(date, "%m/%d/%Y"),
-         year = factor(format(date, "%Y"))) 
+data <- gather(data_given, species, abundance, Sockeye_10:Total_60) %>%
+  separate(species, c("species", "period"), sep ="_") %>%
+  mutate(abundance = as.numeric(abundance),
+         period = str_replace(period, "10", "ten_minute"),
+         period = str_replace(period, "60", "sixty_minute"),
+         date = as.Date(date, "%m/%d/%Y"),
+         year = factor(format(date, "%Y"))) %>%
+  spread(period, abundance)
+
+
 
 total_fish  <- data_given  %>% 
   group_by(date, year, method) %>%
@@ -237,6 +245,7 @@ linear_model <- lm(sqrt_ten_minute ~ sqrt_sixty_minute, data = chignik)
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
 plot(linear_model)
 
+
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 (coho2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
@@ -264,6 +273,7 @@ g.pred <- ggplot(pred.int, aes(x = sqrt_sixty_minute, y = fit)) +
   ylab("Squareroot of 10 minute per hour estimate") +
   ggtitle(paste0(this_year, " ", this_method, " ", this_species, " squareroot of 10 min. vs squareroot of 60 min."))
 g.pred  
+#Question is it possible that misassignment from abundant sockeye to less than abundant coho could create this difference?
 #coho2017weir_graph <- graph_10vs60(chignik, linear_model)
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
