@@ -12,7 +12,9 @@ library(broom)#for cleaning up data, used in prediction
 library(caret)#used for cross validation 
 library(cowplot)
 library(purrr)
-library(stringr)
+#library(naniar)
+#library(stringr)
+library(dplyr)
 source('code/functions.R')
 options(scipen=999)
 getwd()
@@ -20,33 +22,30 @@ getwd()
 # data ----
 data_given <- read_csv('H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar\\data\\chigWeirDidson201618sjp.csv')
 
-#data_given <- read_csv('H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar\\data\\chigWeirDidson201718sjp.csv')
-
-data <- gather(data_given, species, abundance, Sockeye_10:Total_60) %>%
+#1057/151
+#first clean data
+data_given <- data_given %>%
+  dplyr::select(-starts_with("prop")) %>%
+  gather(species, abundance, sockeye_10:total_60) %>%
   separate(species, c("species", "period"), sep ="_") %>%
-  mutate(abundance = as.numeric(abundance),
+  mutate(date = as.Date(date, "%m/%d/%Y"),
+         year = base::factor(format(date, "%Y")),
+         abundance = str_replace(abundance, "-", "0"),
+         abundance = as.numeric(abundance),
          period = str_replace(period, "10", "ten_minute"),
-         period = str_replace(period, "60", "sixty_minute"),
-         date = as.Date(date, "%m/%d/%Y"),
-         year = factor(format(date, "%Y"))) %>%
+         period = str_replace(period, "60", "sixty_minute")) %>%
   spread(period, abundance)
-
-
-
-total_fish  <- data_given  %>% 
-  group_by(date, year, method) %>%
-  summarise(ten_minute = sum(ten_minute),
-            sixty_minute = sum(sixty_minute),
-            proportion_of_files_available = mean(proportion_of_files_available)) %>% 
-  mutate(species = "total")
-
-data_given <- union(data_given, total_fish)
-#data_given <- bind_rows(data_given, total_fish)
 
 data_given  <- data_given  %>% 
   filter(species %in% c("sockeye", "coho", "total"))
-  #filter(species %in% c("Chinook", "chum", "dolly varden"))
-  #filter(species == "pink")
+#filter(species %in% c("Chinook", "chum", "dolly-varden"))
+#filter(species == "pink")
+
+#Find data with NAs
+data_NA<- data_given %>%
+  filter_all(any_vars(is.na(.)))
+
+unique(data_given$method)
 
 # analysis ----
 set.seed(1123)
@@ -97,38 +96,38 @@ regressions%>%
 
 sockeyedat <- data_given %>% filter(species == "sockeye")
 
-sockeye_grid <- ggplot(sockeyedat, aes(x = sixty_minute, y = ten_minute)) +
+(sockeye_grid <- ggplot(sockeyedat, aes(x = sixty_minute, y = ten_minute)) +
   geom_point() +
   geom_abline(intercept = 0, slope = 1) + #line y = x for reference
   geom_smooth(method=lm, se=TRUE) +
   theme(panel.grid.major = element_line("lightgray",0.5),
         panel.grid.minor = element_line("lightgray",0.25)) + 
   ggtitle("Sockeye 60 min vs 10 min") +
-  facet_grid(method ~ year)
+  facet_grid(method ~ year))
 
 cohodat <- data_given %>% filter(species == "coho")
 
-coho_grid <- ggplot(cohodat, aes(x = sixty_minute, y = ten_minute)) +
+(coho_grid <- ggplot(cohodat, aes(x = sixty_minute, y = ten_minute)) +
   geom_point() +
   geom_abline(intercept = 0, slope = 1) + #line y = x for reference
   geom_smooth(method=lm, se=TRUE) +
   theme(panel.grid.major = element_line("lightgray",0.5),
         panel.grid.minor = element_line("lightgray",0.25)) + 
   ggtitle("Coho 60 min vs 10 min") +
-  facet_grid(method ~ year) 
+  facet_grid(method ~ year) )
 
 totaldat <- data_given %>% filter(species == "total")
 
-total_grid <- ggplot(totaldat, aes(x = sixty_minute, y = ten_minute)) +
+(total_grid <- ggplot(totaldat, aes(x = sixty_minute, y = ten_minute)) +
   geom_point() +
   geom_abline(intercept = 0, slope = 1) + #line y = x for reference
   geom_smooth(method=lm, se=TRUE) +
   theme(panel.grid.major = element_line("lightgray",0.5),
         panel.grid.minor = element_line("lightgray",0.25)) + 
   ggtitle("total 60 min vs 10 min") +
-  facet_grid(method ~ year) 
+  facet_grid(method ~ year))
 
-#Individual regression diagnositics and regression graphs these also have prediction intervals built it 
+#Individual regression diagnositics and regression graphs follow.  These also have prediction intervals built in. 
 
 ##Sockeye
 ##weir
@@ -170,10 +169,9 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
 ##sonar
 #set up particular data
 this_species <- "sockeye"
-this_method <- "didson sonar"
+this_method <- "sonar"
 this_year <- 2017
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) %>% 
-  filter(date != "2017-09-03")
+chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
@@ -184,27 +182,9 @@ shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
 (sock2017sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-(sock2017sonar_graph <- graph_10vs60(chignik, linear_model))
+(sock2017sonar_graph <- graph_10vs60(chignik, linear_model))  
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
-
-### 2017 Sockeye sonar with outlier
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method)
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results 
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
-#This does not pass normality tests, however we will you the relationship formed without the outlier. 
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(sock2017sonar_pvalue_outlier <- pvalue_of_t_test_slope_eq_1(linear_model))
-
-#graph
-(sock2017sonar_graph_outlier <- graph_10vs60(chignik, linear_model))
-ggsave(paste0("figures/", this_year, this_method, this_species, "_outlier.png"),
-       dpi=600, height=6, width=6, units="in")
-
 
 this_year <- 2018
 chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
@@ -233,21 +213,14 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results 
 shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
-#Residuals are not normally distributed. Which may be okay since we have a robust sample size, 
-# however there is a violation of homoscedasticity.
-#https://blog.minitab.com/blog/adventures-in-statistics-2/how-important-are-normal-residuals-in-regression-analysis
-#https://www.quora.com/Whats-the-impact-when-residuals-dont-follow-a-normal-distribution-in-a-linear-regression-model
-
-#log transforms (plus 1 so we don't have log(0)) don't ameliorate this issue but a squareroot transform does on both x and y.
-chignik <- chignik  %>% mutate(sqrt_ten_minute = sqrt(ten_minute), sqrt_sixty_minute = sqrt(sixty_minute))
-
-linear_model <- lm(sqrt_ten_minute ~ sqrt_sixty_minute, data = chignik)
-layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
-plot(linear_model)
-
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 (coho2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
+
+#graph
+(coho2018weir_graph <- graph_10vs60(chignik, linear_model))
+ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
+       dpi=600, height=6, width=6, units="in")
 
 #graph
 
@@ -299,7 +272,7 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
 ##sonar
 #set up particular data
 this_species <- "coho"
-this_method <- "didson sonar"
+this_method <- "sonar"
 this_year <- 2017
 chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method)  %>% 
   filter(date != "2017-09-03")
@@ -390,7 +363,7 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
 ##sonar
 #set up particular data
 this_species <- "total"
-this_method <- "didson sonar"
+this_method <- "sonar"
 this_year <- 2017
 chignik <- total_fish  %>% filter(year == this_year, species == this_species, method == this_method)  %>% 
   filter(date != "2017-09-03")
@@ -477,7 +450,7 @@ chignik <- data_given %>%
   filter(year == this_year, species == this_species) %>%
   filter(date != "2017-09-03") %>% # This date had outliers for numbers of fish for the sonar. 
   spread(method, sixty_minute) %>%
-  rename(sonar = "didson sonar")
+  rename(sonar = "sonar")
 
 # Linear Regression 
 linear_model <- lm_weir60vssonar60(chignik)
@@ -496,7 +469,7 @@ chignik <- data_given %>%
   dplyr::select(-ten_minute) %>% 
   filter(year == this_year, species == this_species) %>%
   spread(method, sixty_minute) %>%
-  rename(sonar = "didson sonar")
+  rename(sonar = "sonar")
 
 # Linear Regression 
 linear_model <- lm_weir60vssonar60(chignik)
@@ -520,7 +493,7 @@ chignik <- data_given %>%
   filter(year == this_year, species == this_species) %>%
   filter(date != "2017-09-03") %>% # This date had outliers for numbers of fish for the sonar. 
   spread(method, sixty_minute) %>%
-  rename(sonar = "didson sonar")
+  rename(sonar = "sonar")
 
 # Linear Regression 
 linear_model <- lm_weir60vssonar60(chignik)
@@ -539,7 +512,7 @@ chignik <- data_given %>%
   dplyr::select(-ten_minute) %>% 
   filter(year == this_year, species == this_species) %>%
   spread(method, sixty_minute) %>%
-  rename(sonar = "didson sonar")
+  rename(sonar = "sonar")
 
 # Linear Regression 
 linear_model <- lm_weir60vssonar60(chignik)
@@ -564,7 +537,7 @@ chignik <- total_fish %>%
   filter(year == this_year) %>%
   filter(date != "2017-09-03") %>% # This date had outliers for numbers of fish for the sonar. 
   spread(method, sixty_minute) %>%
-  rename(sonar = "didson sonar")
+  rename(sonar = "sonar")
 
 # Linear Regression 
 linear_model <- lm_weir60vssonar60(chignik)
@@ -583,7 +556,7 @@ chignik <- total_fish %>%
   dplyr::select(-ten_minute) %>% 
   filter(year == this_year) %>%
   spread(method, sixty_minute) %>%
-  rename(sonar = "didson sonar")
+  rename(sonar = "sonar")
 
 # Linear Regression 
 linear_model <- lm_weir60vssonar60(chignik)
