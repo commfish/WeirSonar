@@ -44,8 +44,9 @@ data_given  <- data_given  %>%
 #Find data with NAs
 data_NA<- data_given %>%
   filter_all(any_vars(is.na(.)))
+#All data apears to be present.
 
-unique(data_given$method)
+unique(data_given$species)
 
 # analysis ----
 set.seed(1123)
@@ -140,7 +141,8 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+#durbinWatsonTest(linear_model)
+(sock2017weir_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 (sock2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
@@ -156,7 +158,7 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results 
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+(sock2018weir_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 (sock2018weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
@@ -176,7 +178,7 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results 
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+(sock2017sonar_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 (sock2017sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
@@ -192,7 +194,7 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results 
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+(sock2018sonar_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 (sock2018sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
@@ -209,20 +211,35 @@ this_method <- "weir"
 this_year <- 2017
 chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
 
+wilcox.test(chignik$sixty_minute, chignik$ten_minute, paired = FALSE, alternative = "two.sided")
+
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results 
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+(coho2017weir_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are NOT normally distributed
+length(chignik$sixty_minute)
+resid(linear_model)
+plot(linear_model$fit, resid(linear_model))
+abline(0,0)
+
+chignik$log10min <- log(chignik$ten_minute + 1)
+chignik$log60min <- log(chignik$sixty_minute + 1)
+
+linear_model <- lm(log10min ~ log60min, data = chignik)
+layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
+plot(linear_model)
+return(linear_model)
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 (coho2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
 
 #graph
-(coho2018weir_graph <- graph_10vs60(chignik, linear_model))
+(coho2017weir_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 #graph
+# did I cut stuff out here?
 
 data <- chignik
 minsqrt_sixty_minute <- min(data$sqrt_sixty_minute, na.rm = TRUE)
@@ -247,7 +264,7 @@ g.pred <- ggplot(pred.int, aes(x = sqrt_sixty_minute, y = fit)) +
   ggtitle(paste0(this_year, " ", this_method, " ", this_species, " squareroot of 10 min. vs squareroot of 60 min."))
 g.pred  
 #Question is it possible that misassignment from abundant sockeye to less than abundant coho could create this difference?
-#coho2017weir_graph <- graph_10vs60(chignik, linear_model)
+coho2017weir_graph <- graph_10vs60(chignik, linear_model)
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
@@ -257,7 +274,7 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results 
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+(coho2018weir_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are not normally distributed
 
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
@@ -280,7 +297,7 @@ chignik <- data_given  %>% filter(year == this_year, species == this_species, me
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results 
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+(coho2017sonar_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are NOT normally distributed
 #Residuals are not normally distributed.
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
@@ -293,26 +310,13 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
 ### coho 2017 sonar with outlier
 chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method)
 
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results 
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(coho2017sonar_pvalue_outlier <- pvalue_of_t_test_slope_eq_1(linear_model))
-
-#graph
-(coho2017sonar_graph_outlier <- graph_10vs60(chignik, linear_model))
-ggsave(paste0("figures/", this_year, this_method, this_species, "_outlier.png"),
-       dpi=600, height=6, width=6, units="in")
-
 this_year <- 2018
 chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results 
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+(coho2018sonar_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 (coho2018sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
@@ -328,12 +332,12 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
 this_species <- "total"
 this_method <- "weir"
 this_year <- 2017
-chignik <- total_fish %>% filter(year == this_year, species == this_species, method == this_method) 
+chignik <- data_given %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+(total2017weir_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 (total2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
@@ -344,12 +348,12 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 this_year <- 2018
-chignik <- total_fish  %>% filter(year == this_year, species == this_species, method == this_method) 
+chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+(total2018weir_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 (total2018weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
@@ -365,13 +369,12 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
 this_species <- "total"
 this_method <- "sonar"
 this_year <- 2017
-chignik <- total_fish  %>% filter(year == this_year, species == this_species, method == this_method)  %>% 
-  filter(date != "2017-09-03")
+chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+(total2017sonar_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 (total2017sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
@@ -380,29 +383,14 @@ shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
 (total2017sonar_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
-### total 2017 sonar with outlier
-chignik <- total_fish  %>% filter(year == this_year, species == this_species, method == this_method)
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(total2017sonar_pvalue_outlier <- pvalue_of_t_test_slope_eq_1(linear_model))
-
-#graph
-(total2017sonar_graph_outlier <- graph_10vs60(chignik, linear_model))
-ggsave(paste0("figures/", this_year, this_method, this_species, "_outlier.png"),
-       dpi=600, height=6, width=6, units="in")
 
 this_year <- 2018
-chignik <- total_fish  %>% filter(year == this_year, species == this_species, method == this_method) 
+chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results
-shapiro.test(linear_model$residuals) # Ho: Residuals are normally distributed
+(total2018sonar_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 (total2018sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
@@ -414,12 +402,9 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
 
 
 sockeyegraphs <- cowplot::plot_grid(sock2017sonar_graph, sock2018sonar_graph, sock2017weir_graph, sock2018weir_graph, scale = c(1,1,1,1))
-sockeyesonar2017graphs <- cowplot::plot_grid(sock2017sonar_graph, sock2017sonar_graph_outlier, scale = c(1,1))
 cohographs <- cowplot::plot_grid(coho2017sonar_graph, coho2018sonar_graph, coho2017weir_graph, coho2018weir_graph, scale = c(1,1,1,1))
-cohosonar2017graphs <- cowplot::plot_grid(coho2017sonar_graph, coho2017sonar_graph_outlier, scale = c(1,1))
 totalgraphs <- cowplot::plot_grid(total2017sonar_graph, total2018sonar_graph, total2017weir_graph, total2018weir_graph, scale = c(1,1,1,1))
-totalsonar2017graphs <- cowplot::plot_grid(total2017sonar_graph, total2017sonar_graph_outlier, scale = c(1,1))
-withandwithout_outliers <- cowplot::plot_grid(sockeyesonar2017graphs, cohosonar2017graphs, totalsonar2017graphs, nrow = 3)
+
 
 
 sock2017weir_pvalue
@@ -434,6 +419,19 @@ total2017weir_pvalue
 total2018weir_pvalue
 total2017sonar_pvalue
 total2018sonar_pvalue
+
+sock2017weir_shapiro
+sock2018weir_shapiro
+sock2017sonar_shapiro
+sock2018sonar_shapiro
+coho2017weir_shapiro
+coho2018weir_shapiro
+coho2017sonar_shapiro
+coho2018sonar_shapiro
+total2017weir_shapiro
+total2018weir_shapiro
+total2017sonar_shapiro
+total2018sonar_shapiro
 
 #####60 minute weir vs 60 minute sonar
 
@@ -532,10 +530,9 @@ ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
 this_species <- "total"
 time_interval <- "weir60sonar60"
 this_year <- 2017
-chignik <- total_fish %>% 
+chignik <- data_given %>% 
   dplyr::select(-ten_minute) %>% 
   filter(year == this_year) %>%
-  filter(date != "2017-09-03") %>% # This date had outliers for numbers of fish for the sonar. 
   spread(method, sixty_minute) %>%
   rename(sonar = "sonar")
 
@@ -552,7 +549,7 @@ ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 this_year <- 2018
-chignik <- total_fish %>% 
+chignik <- data_given %>% 
   dplyr::select(-ten_minute) %>% 
   filter(year == this_year) %>%
   spread(method, sixty_minute) %>%
