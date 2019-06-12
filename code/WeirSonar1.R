@@ -15,6 +15,7 @@ library(purrr)
 #library(naniar)
 #library(stringr)
 library(dplyr)
+library(PairedData)
 source('code/functions.R')
 options(scipen=999)
 getwd()
@@ -24,7 +25,7 @@ data_given <- read_csv('H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_son
 
 #1057/151
 #first clean data
-data_given <- data_given %>%
+data_gathered <- data_given %>%
   dplyr::select(-starts_with("prop")) %>%
   gather(species, abundance, sockeye_10:total_60) %>%
   separate(species, c("species", "period"), sep ="_") %>%
@@ -33,26 +34,28 @@ data_given <- data_given %>%
          abundance = str_replace(abundance, "-", "0"),
          abundance = as.numeric(abundance),
          period = str_replace(period, "10", "ten_minute"),
-         period = str_replace(period, "60", "sixty_minute")) %>%
-  spread(period, abundance)
-
-data_given  <- data_given  %>% 
+         period = str_replace(period, "60", "sixty_minute")) %>% 
   filter(species %in% c("sockeye", "coho", "total"))
 #filter(species %in% c("Chinook", "chum", "dolly-varden"))
 #filter(species == "pink")
 
 #Find data with NAs
-data_NA<- data_given %>%
+data_NA<- data_gathered %>%
   filter_all(any_vars(is.na(.)))
 #All data apears to be present.
 
-unique(data_given$species)
+data_wide1060 <- data_gathered %>% #suspicious vehicle
+  spread(period, abundance)
+
+unique(data_gathered$species)
 
 # analysis ----
 set.seed(1123)
-#options(scipen=999)
 
-regressions <- data_given %>%
+# This first section is comparing how a 60 minute per hour count (census) compares with 
+# a 10 minute per hour count that is then exapanded by 6. 
+
+regressions <- data_wide1060 %>%
   nest(-species, -year, -method) %>%
   mutate(fit = map(data, ~lm(ten_minute ~ sixty_minute, data = .x )),
          tidied = map(fit, tidy),
@@ -67,8 +70,8 @@ regressions %>%
 #regressions%>%
 #  unnest(augmented, .drop = TRUE)
 
-#Consider the no intercept regressions. 
-regressions <- data_given %>%
+#Consider the no intercept regressions. This is liekly not needed since they approximately go through 0 anyway.
+regressions <- data_wide1060 %>%
   nest(-species, -year, -method) %>%
   mutate(fit = map(data, ~lm(ten_minute ~ 0+sixty_minute, data = .x )),
          tidied = map(fit, tidy))
@@ -85,7 +88,8 @@ regressions%>%
 # gridded
 #https://i.stack.imgur.com/vtrWf.png
 
-(fish_grid <- ggplot(data_given , aes(x = sixty_minute, y = ten_minute)) +
+# This graph combines all years together to see if there are trends by species
+(fish_grid <- ggplot(data_wide1060 , aes(x = sixty_minute, y = ten_minute)) +
   geom_point() +
   geom_abline(intercept = 0, slope = 1) + #line y = x for reference
   geom_smooth(method=lm, se=TRUE) +
@@ -94,8 +98,8 @@ regressions%>%
   ggtitle("60 min vs 10 min") +
   facet_grid(method ~ species))
 
-
-sockeyedat <- data_given %>% filter(species == "sockeye")
+#This graph looks at sockeye and displays graphs by year and method (sonar or weir)
+sockeyedat <- data_wide1060 %>% filter(species == "sockeye")
 
 (sockeye_grid <- ggplot(sockeyedat, aes(x = sixty_minute, y = ten_minute)) +
   geom_point() +
@@ -106,7 +110,8 @@ sockeyedat <- data_given %>% filter(species == "sockeye")
   ggtitle("Sockeye 60 min vs 10 min") +
   facet_grid(method ~ year))
 
-cohodat <- data_given %>% filter(species == "coho")
+#This graph looks at coho and displays graphs by year and method (sonar or weir)
+cohodat <- data_wide1060 %>% filter(species == "coho")
 
 (coho_grid <- ggplot(cohodat, aes(x = sixty_minute, y = ten_minute)) +
   geom_point() +
@@ -117,7 +122,10 @@ cohodat <- data_given %>% filter(species == "coho")
   ggtitle("Coho 60 min vs 10 min") +
   facet_grid(method ~ year) )
 
-totaldat <- data_given %>% filter(species == "total")
+
+#This graph looks at totals of all fish passing and displays graphs by year and method (sonar or weir)
+# All fish: Chinook, chum, coho, pinks, dolly varden
+totaldat <- data_wide1060 %>% filter(species == "total")
 
 (total_grid <- ggplot(totaldat, aes(x = sixty_minute, y = ten_minute)) +
   geom_point() +
@@ -128,7 +136,8 @@ totaldat <- data_given %>% filter(species == "total")
   ggtitle("total 60 min vs 10 min") +
   facet_grid(method ~ year))
 
-#Individual regression diagnositics and regression graphs follow.  These also have prediction intervals built in. 
+#Individual regression diagnositics and regression graphs follow.  These also have prediction intervals built in.
+#These are preferable for publication purposes
 
 ##Sockeye
 ##weir
@@ -136,12 +145,11 @@ totaldat <- data_given %>% filter(species == "total")
 this_species <- "sockeye"
 this_method <- "weir"
 this_year <- 2017
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
+chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
 summary(linear_model)# show results
-#durbinWatsonTest(linear_model)
 (sock2017weir_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
@@ -152,8 +160,54 @@ summary(linear_model)# show results
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
+
+pvalues_lm_graph <- function(data = data_gathered, this_species, this_year, this_method){
+  #Filter out wanted data
+  data_gathered <- data_gathered %>% filter(year == this_year, species == this_species, method == this_method)
+  
+  #Non- parametric test Ho: period of time counting estimates are the same Ha: estimates are different
+  wilcox_out <- wilcox.test(abundance ~ period, data = data_gathered, paired = TRUE, alternative = "two.sided")
+  wilcox_pvalue <- wilcox_out$p.value
+  
+  #prepare data for parametic tests & graphing
+  data_wide1060 <- data_gathered %>% 
+    spread(period, abundance)
+  
+  #data_wide1060 <- chignik
+  
+  #create linear model
+  linear_model <- lm_10vs60(data_wide1060)
+  summary(linear_model)# show results
+  
+  #Test for normality of residuals
+  shapiro_out <- shapiro.test(linear_model$residuals)
+  shapiro_pvalue <- shapiro_out$p.value
+  
+  #Note the following p_values & R squared are only really valid if shapiro_pvalue > 0.05
+  #Test to see if linear regression is statistically significant (in this case aka slope is statistically sig)
+  lm_pvalue <- coef(summary(linear_model))[2,4]
+  
+  #adjusted r squared for those that like it.
+  adj_r_squared <- summary(linear_model)$adj.r.squared
+  
+  #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
+  slope_eq1_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+  
+  # Graph regression and put in figure file
+  (sock2018weir_graph <- graph_10vs60(data_wide1060, linear_model))
+  ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
+         dpi=600, height=6, width=6, units="in")
+  
+  # return data frame of pvalues and adj.r.squared
+  df <- data.frame(wilcox_pvalue, slope_eq1_pvalue, shapiro_pvalue, lm_pvalue, adj_r_squared, slope_eq1_pvalue)
+  return(df)
+}
+  
+
+pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_year = 2017 , this_method = "sonar")
+
 this_year <- 2018
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
+chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
@@ -173,7 +227,7 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
 this_species <- "sockeye"
 this_method <- "sonar"
 this_year <- 2017
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
+chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
@@ -189,7 +243,7 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 this_year <- 2018
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
+chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
@@ -209,9 +263,20 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
 this_species <- "coho"
 this_method <- "weir"
 this_year <- 2017
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
-
+chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
+wilcox.test(abundance ~ period, data = chignik, paired = TRUE, alternative = "two.sided")
 wilcox.test(chignik$sixty_minute, chignik$ten_minute, paired = FALSE, alternative = "two.sided")
+
+
+# for box plots to visualize paired data: perhaps this is not needed.
+# Subset abundance data by period
+sixty <- subset(chignik,  period == "sixty_minute", abundance, drop = TRUE)
+#Estimates are not stistically significantly different with a p value of 0.3014
+ten <- subset(chignik,  period == "ten_minute", abundance, drop = TRUE)
+
+# Plot paired data
+pd <- paired(sixty, ten)
+plot(pd, type = "profile") + theme_bw()
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
@@ -232,27 +297,47 @@ return(linear_model)
 
 #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
 (coho2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
-
+ 
 #graph
 (coho2017weir_graph <- graph_10vs60(chignik, linear_model))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
-
-#graph
-# did I cut stuff out here?
-
-data <- chignik
-minsqrt_sixty_minute <- min(data$sqrt_sixty_minute, na.rm = TRUE)
-maxsqrt_sixty_minute <- max(data$sqrt_sixty_minute, na.rm = TRUE)
-predx <- data.frame(sqrt_sixty_minute = seq(from = minsqrt_sixty_minute, to = maxsqrt_sixty_minute, by = (maxsqrt_sixty_minute-minsqrt_sixty_minute)/19))
+minlog60min <- min(chignik$log60min, na.rm = TRUE)
+maxlog60min <- max(chignik$log60min, na.rm = TRUE)
+predx <- data.frame(log60min = seq(from = minlog60min, to = maxlog60min, by = (maxlog60min-minlog60min)/19))
 
 # ... confidence interval
 conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
 # ... prediction interval
 pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
 
-g.pred <- ggplot(pred.int, aes(x = sqrt_sixty_minute, y = fit)) +
-  geom_point(data = data, aes(x = sqrt_sixty_minute, y = sqrt_ten_minute)) + #plots all the points
+g.pred <- ggplot(pred.int, aes(x = log60min, y = fit)) +
+  geom_point(data = chignik, aes(x = log60min, y = ten_minute)) + #plots all the points
+  #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
+  geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
+  geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
+  geom_abline(intercept = 0, slope = 1) + #line y = x for reference
+  theme_bw() +
+  theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
+  xlab("60 minute per hour count") +
+  ylab("10 minute per hour estimate") +
+  ggtitle(paste0(this_year, " ", this_method, " ", this_species, " 10 min. vs 60 min."))
+g.pred 
+#graph
+# did I cut stuff out here?
+
+data <- chignik
+minsqrt_log60min <- min(data$sqrt_log60min, na.rm = TRUE)
+maxsqrt_log60min <- max(data$sqrt_log60min, na.rm = TRUE)
+predx <- data.frame(sqrt_log60min = seq(from = minsqrt_log60min, to = maxsqrt_log60min, by = (maxsqrt_log60min-minsqrt_log60min)/19))
+
+# ... confidence interval
+conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
+# ... prediction interval
+pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
+
+g.pred <- ggplot(pred.int, aes(x = sqrt_log60min, y = fit)) +
+  geom_point(data = data, aes(x = sqrt_log60min, y = sqrt_log10min)) + #plots all the points
   #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
   geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
   geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
@@ -269,7 +354,7 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 this_year <- 2018
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
+chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
@@ -291,7 +376,7 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
 this_species <- "coho"
 this_method <- "sonar"
 this_year <- 2017
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method)  %>% 
+chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method)  %>% 
   filter(date != "2017-09-03")
 
 # Linear Regression 
@@ -308,10 +393,10 @@ summary(linear_model)# show results
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 ### coho 2017 sonar with outlier
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method)
+chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method)
 
 this_year <- 2018
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
+chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
@@ -332,7 +417,7 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
 this_species <- "total"
 this_method <- "weir"
 this_year <- 2017
-chignik <- data_given %>% filter(year == this_year, species == this_species, method == this_method) 
+chignik <- data_wide1060 %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
@@ -348,7 +433,7 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 this_year <- 2018
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
+chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
@@ -369,7 +454,7 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
 this_species <- "total"
 this_method <- "sonar"
 this_year <- 2017
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
+chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
@@ -385,7 +470,7 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 this_year <- 2018
-chignik <- data_given  %>% filter(year == this_year, species == this_species, method == this_method) 
+chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
 linear_model <- lm_10vs60(chignik)
@@ -443,7 +528,7 @@ total2018sonar_shapiro
 this_species <- "sockeye"
 time_interval <- "weir60sonar60"
 this_year <- 2017
-chignik <- data_given %>% 
+chignik <- data_gathered %>% 
   dplyr::select(-ten_minute) %>% 
   filter(year == this_year, species == this_species) %>%
   filter(date != "2017-09-03") %>% # This date had outliers for numbers of fish for the sonar. 
@@ -463,7 +548,7 @@ ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 this_year <- 2018
-chignik <- data_given %>% 
+chignik <- data_gathered %>% 
   dplyr::select(-ten_minute) %>% 
   filter(year == this_year, species == this_species) %>%
   spread(method, sixty_minute) %>%
@@ -486,7 +571,7 @@ ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
 this_species <- "coho"
 time_interval <- "weir60sonar60"
 this_year <- 2017
-chignik <- data_given %>% 
+chignik <- data_gathered %>% 
   dplyr::select(-ten_minute) %>% 
   filter(year == this_year, species == this_species) %>%
   filter(date != "2017-09-03") %>% # This date had outliers for numbers of fish for the sonar. 
@@ -506,7 +591,7 @@ ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 this_year <- 2018
-chignik <- data_given %>% 
+chignik <- data_gathered %>% 
   dplyr::select(-ten_minute) %>% 
   filter(year == this_year, species == this_species) %>%
   spread(method, sixty_minute) %>%
@@ -530,7 +615,7 @@ ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
 this_species <- "total"
 time_interval <- "weir60sonar60"
 this_year <- 2017
-chignik <- data_given %>% 
+chignik <- data_gathered %>% 
   dplyr::select(-ten_minute) %>% 
   filter(year == this_year) %>%
   spread(method, sixty_minute) %>%
@@ -549,7 +634,7 @@ ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 this_year <- 2018
-chignik <- data_given %>% 
+chignik <- data_gathered %>% 
   dplyr::select(-ten_minute) %>% 
   filter(year == this_year) %>%
   spread(method, sixty_minute) %>%
