@@ -40,7 +40,7 @@ data_gathered <- data_given %>%
 #filter(species == "pink")
 
 #Find data with NAs
-data_NA<- data_gathered %>%
+data_NA <- data_gathered %>%
   filter_all(any_vars(is.na(.)))
 #All data apears to be present.
 
@@ -142,9 +142,9 @@ totaldat <- data_wide1060 %>% filter(species == "total")
 ##Sockeye
 ##weir
 #set up particular data
-this_species <- "sockeye"
-this_method <- "weir"
-this_year <- 2017
+this_species <- "coho"
+this_method <- "sonar"
+this_year <- 2016
 chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
 
 # Linear Regression 
@@ -156,367 +156,75 @@ summary(linear_model)# show results
 (sock2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
   
 #graph
-(sock2017weir_graph <- graph_10vs60(chignik, linear_model))
+(sock2017weir_graph <- graph_10vs60(chignik, linear_model, this_year, this_method, this_species))
 ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
        dpi=600, height=6, width=6, units="in")
 
 
-pvalues_lm_graph <- function(data = data_gathered, this_species, this_year, this_method){
-  #Filter out wanted data
-  data_gathered <- data_gathered %>% filter(year == this_year, species == this_species, method == this_method)
+
   
-  #Non- parametric test Ho: period of time counting estimates are the same Ha: estimates are different
-  wilcox_out <- wilcox.test(abundance ~ period, data = data_gathered, paired = TRUE, alternative = "two.sided")
-  wilcox_pvalue <- wilcox_out$p.value
-  
-  #prepare data for parametic tests & graphing
-  data_wide1060 <- data_gathered %>% 
-    spread(period, abundance)
-  
-  #data_wide1060 <- chignik
-  
-  #create linear model
-  linear_model <- lm_10vs60(data_wide1060)
-  summary(linear_model)# show results
-  
-  #Test for normality of residuals
-  shapiro_out <- shapiro.test(linear_model$residuals)
-  shapiro_pvalue <- shapiro_out$p.value
-  
-  #Note the following p_values & R squared are only really valid if shapiro_pvalue > 0.05
-  #Test to see if linear regression is statistically significant (in this case aka slope is statistically sig)
-  lm_pvalue <- coef(summary(linear_model))[2,4]
-  
-  #adjusted r squared for those that like it.
-  adj_r_squared <- summary(linear_model)$adj.r.squared
-  
-  #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-  slope_eq1_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
-  
-  # Graph regression and put in figure file
-  (sock2018weir_graph <- graph_10vs60(data_wide1060, linear_model))
-  ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-         dpi=600, height=6, width=6, units="in")
-  
-  # return data frame of pvalues and adj.r.squared
-  df <- data.frame(wilcox_pvalue, slope_eq1_pvalue, shapiro_pvalue, lm_pvalue, adj_r_squared, slope_eq1_pvalue)
-  return(df)
-}
-  
+sockeye16sonar <- pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_method = "sonar", this_year = 2016)
+sockeye17sonar <- pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_method = "sonar",this_year = 2017)
+sockeye18sonar <- pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_method = "sonar",this_year = 2018)
+sockeye16weir <- pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_method = "weir", this_year = 2016)
+sockeye17weir <- pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_method = "weir",this_year = 2017)
+sockeye18weir <- pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_method = "weir",this_year = 2018)
+sockeye_values <- bind_rows(sockeye16sonar$values, sockeye17sonar$values, sockeye18sonar$values,sockeye16weir$values, sockeye17weir$values, sockeye18weir$values)
+
+coho16sonar <- pvalues_lm_graph(data = data_gathered, this_species = "coho", this_method = "sonar", this_year = 2016)
+coho17sonar <- pvalues_lm_graph(data = data_gathered, this_species = "coho", this_method = "sonar",this_year = 2017)
+coho18sonar <- pvalues_lm_graph(data = data_gathered, this_species = "coho", this_method = "sonar",this_year = 2018)
+coho16weir <- pvalues_lm_graph(data = data_gathered, this_species = "coho", this_method = "weir", this_year = 2016)
+coho17weir <- pvalues_lm_graph(data = data_gathered, this_species = "coho", this_method = "weir",this_year = 2017)
+coho18weir <- pvalues_lm_graph(data = data_gathered, this_species = "coho", this_method = "weir",this_year = 2018)
+coho_values <- bind_rows(coho16sonar$values, coho17sonar$values, coho18sonar$values,coho16weir$values, coho17weir$values, coho18weir$values)
+
+total16sonar <- pvalues_lm_graph(data = data_gathered, this_species = "total", this_method = "sonar", this_year = 2016)
+total17sonar <- pvalues_lm_graph(data = data_gathered, this_species = "total", this_method = "sonar",this_year = 2017)
+total18sonar <- pvalues_lm_graph(data = data_gathered, this_species = "total", this_method = "sonar",this_year = 2018)
+total16weir <- pvalues_lm_graph(data = data_gathered, this_species = "total", this_method = "weir", this_year = 2016)
+total17weir <- pvalues_lm_graph(data = data_gathered, this_species = "total", this_method = "weir",this_year = 2017)
+total18weir <- pvalues_lm_graph(data = data_gathered, this_species = "total", this_method = "weir",this_year = 2018)
+total_values <- bind_rows(total16sonar$values, total17sonar$values, total18sonar$values,total16weir$values, total17weir$values, total18weir$values)
+
+values <- bind_rows(sockeye_values, coho_values, total_values)
+
+
+(sort <- values[order(values$wilcox_pvalue),] )
+#Because we are testing 2x3x3 = 18 hypotheses, then for an alpha level of 0.05, the Bonferroni correction is 0.05/18 = 0.002777778
+# Since some of the residuals appear to be non i.i.d., we can use non-parametric statistics, using the Wilcoxon rank sum test 
+# Ho: 60 minute count and the 10 minute estimate of fish passage are equivalent.
+# Ha: 60 minute count and the 10 minute estimate of fish passage are not equivalent.
+# In each of the 18 cases we fail to reject the null hypothesis.
+
+(sort <- values[order(values$shapiro_pvalue),] )
+#For 12 the 18 cases the data is normally distributed and hypothesis testing on the linear regression is appropriate
+# Here the Bonferroni correction is 0.05/12 = 0.004166667
+# Testing the slopes against the slope = 1
+# Ho: The slope is equivalent to 1 
+# Ho: The solope is not equivalent to 1
+# In all but one case we fail to reject the null hypothesis. That case is the 2016 sonar estimate for coho. 
+#
+(sort <- values[order(values$slope_eq1_pvalue),] )
+
+(sort <- values[order(values$species, values$method, values$year),] )
+
+table_values <- sort %>%
+  mutate(slope_eq1_pvalue = replace(slope_eq1_pvalue, sort$shapiro_pvalue < 0.05, NA),
+         adj_r_squared = replace(adj_r_squared, sort$shapiro_pvalue < 0.05, NA)
+         )
+
+print(table_values, digits = 4)
+mydata$error[mydata$variable == "cla5C"] = NA 
+
+sockeyegraphs <- cowplot::plot_grid(sockeye16sonar$graph, sockeye17sonar$graph, sockeye18sonar$graph, sockeye16weir$graph, sockeye17weir$graph, sockeye18weir$graph, scale = c(1,1,1,1,1,1))
+cohographs <- cowplot::plot_grid(coho16sonar$graph, coho17sonar$graph, coho18sonar$graph, coho16weir$graph, coho17weir$graph, coho18weir$graph, scale = c(1,1,1,1,1,1))
+totalgraphs <- cowplot::plot_grid(total16sonar$graph, total17sonar$graph, total18sonar$graph, total16weir$graph, total17weir$graph, total18weir$graph, scale = c(1,1,1,1,1,1))
+
+sonar2016 <- cowplot::plot_grid(sockeye16sonar$graph,coho16sonar$graph, total16sonar$graph)
+sonar2017 <- cowplot::plot_grid(sockeye17sonar$graph,coho17sonar$graph, total17sonar$graph)
 
-pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_year = 2017 , this_method = "sonar")
 
-this_year <- 2018
-chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results 
-(sock2018weir_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(sock2018weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
-
-#graph
-(sock2018weir_graph <- graph_10vs60(chignik, linear_model))
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-##sonar
-#set up particular data
-this_species <- "sockeye"
-this_method <- "sonar"
-this_year <- 2017
-chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results 
-(sock2017sonar_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(sock2017sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
-
-#graph
-(sock2017sonar_graph <- graph_10vs60(chignik, linear_model))  
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-this_year <- 2018
-chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results 
-(sock2018sonar_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(sock2018sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
-
-#graph
-(sock2018sonar_graph <- graph_10vs60(chignik, linear_model))
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-#Coho
-#set up particular data
-this_species <- "coho"
-this_method <- "weir"
-this_year <- 2017
-chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
-wilcox.test(abundance ~ period, data = chignik, paired = TRUE, alternative = "two.sided")
-wilcox.test(chignik$sixty_minute, chignik$ten_minute, paired = FALSE, alternative = "two.sided")
-
-
-# for box plots to visualize paired data: perhaps this is not needed.
-# Subset abundance data by period
-sixty <- subset(chignik,  period == "sixty_minute", abundance, drop = TRUE)
-#Estimates are not stistically significantly different with a p value of 0.3014
-ten <- subset(chignik,  period == "ten_minute", abundance, drop = TRUE)
-
-# Plot paired data
-pd <- paired(sixty, ten)
-plot(pd, type = "profile") + theme_bw()
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results 
-(coho2017weir_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are NOT normally distributed
-length(chignik$sixty_minute)
-resid(linear_model)
-plot(linear_model$fit, resid(linear_model))
-abline(0,0)
-
-chignik$log10min <- log(chignik$ten_minute + 1)
-chignik$log60min <- log(chignik$sixty_minute + 1)
-
-linear_model <- lm(log10min ~ log60min, data = chignik)
-layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
-plot(linear_model)
-return(linear_model)
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(coho2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
- 
-#graph
-(coho2017weir_graph <- graph_10vs60(chignik, linear_model))
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-minlog60min <- min(chignik$log60min, na.rm = TRUE)
-maxlog60min <- max(chignik$log60min, na.rm = TRUE)
-predx <- data.frame(log60min = seq(from = minlog60min, to = maxlog60min, by = (maxlog60min-minlog60min)/19))
-
-# ... confidence interval
-conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
-# ... prediction interval
-pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
-
-g.pred <- ggplot(pred.int, aes(x = log60min, y = fit)) +
-  geom_point(data = chignik, aes(x = log60min, y = ten_minute)) + #plots all the points
-  #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
-  geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
-  geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
-  geom_abline(intercept = 0, slope = 1) + #line y = x for reference
-  theme_bw() +
-  theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
-  xlab("60 minute per hour count") +
-  ylab("10 minute per hour estimate") +
-  ggtitle(paste0(this_year, " ", this_method, " ", this_species, " 10 min. vs 60 min."))
-g.pred 
-#graph
-# did I cut stuff out here?
-
-data <- chignik
-minsqrt_log60min <- min(data$sqrt_log60min, na.rm = TRUE)
-maxsqrt_log60min <- max(data$sqrt_log60min, na.rm = TRUE)
-predx <- data.frame(sqrt_log60min = seq(from = minsqrt_log60min, to = maxsqrt_log60min, by = (maxsqrt_log60min-minsqrt_log60min)/19))
-
-# ... confidence interval
-conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
-# ... prediction interval
-pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
-
-g.pred <- ggplot(pred.int, aes(x = sqrt_log60min, y = fit)) +
-  geom_point(data = data, aes(x = sqrt_log60min, y = sqrt_log10min)) + #plots all the points
-  #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
-  geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
-  geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
-  geom_abline(intercept = 0, slope = 1) + #line y = x for reference
-  theme_bw() +
-  theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
-  xlab("Squareroot of 60 minute per hour count") +
-  ylab("Squareroot of 10 minute per hour estimate") +
-  ggtitle(paste0(this_year, " ", this_method, " ", this_species, " squareroot of 10 min. vs squareroot of 60 min."))
-g.pred  
-#Question is it possible that misassignment from abundant sockeye to less than abundant coho could create this difference?
-coho2017weir_graph <- graph_10vs60(chignik, linear_model)
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-this_year <- 2018
-chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results 
-(coho2018weir_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are not normally distributed
-
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(coho2018weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
-
-#graph
-(coho2018weir_graph <- graph_10vs60(chignik, linear_model))
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-
-##sonar
-#set up particular data
-this_species <- "coho"
-this_method <- "sonar"
-this_year <- 2017
-chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method)  %>% 
-  filter(date != "2017-09-03")
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results 
-(coho2017sonar_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are NOT normally distributed
-#Residuals are not normally distributed.
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(coho2017sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
-
-#graph
-(coho2017sonar_graph <- graph_10vs60(chignik, linear_model))
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-### coho 2017 sonar with outlier
-chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method)
-
-this_year <- 2018
-chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results 
-(coho2018sonar_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(coho2018sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
-
-#graph
-(coho2018sonar_graph <- graph_10vs60(chignik, linear_model))
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-
-## For total fish##############
-#set up particular data
-this_species <- "total"
-this_method <- "weir"
-this_year <- 2017
-chignik <- data_wide1060 %>% filter(year == this_year, species == this_species, method == this_method) 
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
-(total2017weir_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(total2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
-
-#graph
-(total2017weir_graph <- graph_10vs60(chignik, linear_model))
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-this_year <- 2018
-chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
-(total2018weir_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(total2018weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
-
-#graph
-(total2018weir_graph <- graph_10vs60(chignik, linear_model))
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-
-##sonar
-#set up particular data
-this_species <- "total"
-this_method <- "sonar"
-this_year <- 2017
-chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
-(total2017sonar_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(total2017sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
-
-#graph
-(total2017sonar_graph <- graph_10vs60(chignik, linear_model))
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-this_year <- 2018
-chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
-(total2018sonar_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(total2018sonar_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
-
-#graph
-(total2018sonar_graph <- graph_10vs60(chignik, linear_model))
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-
-sockeyegraphs <- cowplot::plot_grid(sock2017sonar_graph, sock2018sonar_graph, sock2017weir_graph, sock2018weir_graph, scale = c(1,1,1,1))
-cohographs <- cowplot::plot_grid(coho2017sonar_graph, coho2018sonar_graph, coho2017weir_graph, coho2018weir_graph, scale = c(1,1,1,1))
-totalgraphs <- cowplot::plot_grid(total2017sonar_graph, total2018sonar_graph, total2017weir_graph, total2018weir_graph, scale = c(1,1,1,1))
-
-
-
-sock2017weir_pvalue
-sock2018weir_pvalue
-sock2017sonar_pvalue
-sock2018sonar_pvalue
-coho2017weir_pvalue
-coho2018weir_pvalue
-coho2017sonar_pvalue
-coho2018sonar_pvalue
-total2017weir_pvalue
-total2018weir_pvalue
-total2017sonar_pvalue
-total2018sonar_pvalue
-
-sock2017weir_shapiro
-sock2018weir_shapiro
-sock2017sonar_shapiro
-sock2018sonar_shapiro
-coho2017weir_shapiro
-coho2018weir_shapiro
-coho2017sonar_shapiro
-coho2018sonar_shapiro
-total2017weir_shapiro
-total2018weir_shapiro
-total2017sonar_shapiro
-total2018sonar_shapiro
 
 #####60 minute weir vs 60 minute sonar
 
