@@ -10,7 +10,12 @@ library(calibrate)
 library(ggplot2)
 library(broom)#for cleaning up data, used in prediction
 library(caret)#used for cross validation 
-#source('code/functions.R')
+library(cowplot)
+library(purrr)
+#library(naniar)
+#library(stringr)
+library(dplyr)
+library(PairedData)
 
 # functions ----
 
@@ -42,7 +47,7 @@ graph_10vs60 <- function(data, linear_model, this_year, this_method, this_specie
     theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
     xlab("60 minute per hour count") +
     ylab("10 minute per hour estimate") +
-    ggtitle(paste0(this_year, " ", this_method, " ", this_species, " 10vs.60"))
+    ggtitle(paste0(this_year, " ", this_method, " ", this_species, " 10 vs.60"))
   g.pred  
 }
 
@@ -142,7 +147,7 @@ pvalues_lm_graph <- function(data = data_gathered, this_species, this_method, th
   
   #Non- parametric test Ho: period of time counting estimates are the same Ha: estimates are different
   wilcox_out <- wilcox.test(abundance ~ period, data = data_gathered, paired = TRUE, alternative = "two.sided")
-  wilcox_pvalue <- wilcox_out$p.value
+  wilcox <- wilcox_out$p.value
   
   #prepare data for parametic tests & graphing
   data_wide1060 <- data_gathered %>% 
@@ -156,17 +161,17 @@ pvalues_lm_graph <- function(data = data_gathered, this_species, this_method, th
   
   #Test for normality of residuals
   shapiro_out <- shapiro.test(linear_model$residuals)
-  shapiro_pvalue <- shapiro_out$p.value
+  shapiro <- shapiro_out$p.value
   
   #Note the following p_values & R squared are only really valid if shapiro_pvalue > 0.05
   #Test to see if linear regression is statistically significant (in this case aka slope is statistically sig)
-  lm_pvalue <- coef(summary(linear_model))[2,4]
+  lm <- coef(summary(linear_model))[2,4]
   
   #adjusted r squared for those that like it.
   adj_r_squared <- summary(linear_model)$adj.r.squared
   
   #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-  slope_eq1_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+  slope_eq1<- pvalue_of_t_test_slope_eq_1(linear_model)
   
   # Graph regression and put in figure file
   (graph <- graph_10vs60(data_wide1060, linear_model, this_year, this_method, this_species))
@@ -178,7 +183,7 @@ pvalues_lm_graph <- function(data = data_gathered, this_species, this_method, th
   year <- this_year
   
   # return data frame of pvalues and adj.r.squared
-  df <- data.frame(species, method, year, wilcox_pvalue, slope_eq1_pvalue, shapiro_pvalue, lm_pvalue, adj_r_squared)
+  df <- data.frame(species, method, year, wilcox, shapiro, slope_eq1, adj_r_squared)
   
   out <- list(values = df, graph = graph)
   return(out)
