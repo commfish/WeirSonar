@@ -64,9 +64,8 @@ An expanded 10 minutes per hour count is appropriate for estimating the 60 minut
 n_wilcox <- length(which(is.na(table_values$wilcox) == FALSE))
 n_slope_eq1 <- length(which(is.na(table_values$slope_eq1) == FALSE))
 
+# Format sig figs
 table_values[c(4,5,6)] <- lapply(table_values[,c(4,5,6)], formatC,  format="f", digits = 3)
-
-
 table_values$adj_r_squared <- formatC(table_values$adj_r_squared, format="f", digits = 2)
 
 table_values <- table_values %>%
