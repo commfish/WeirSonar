@@ -73,12 +73,6 @@ regressions%>%
 
 
 #Regressions
-#Facetted
-#https://campus.datacamp.com/courses/data-visualization-with-ggplot2-2/chapter-2-coordinates-and-facets?ex=6
-# 95% CIs
-#https://rstudio-pubs-static.s3.amazonaws.com/71339_d0b8346f41314979bc394448c5d60d86.html
-# gridded
-#https://i.stack.imgur.com/vtrWf.png
 
 # This graph combines all years together to see if there are trends by species
 (fish_grid <- ggplot(data_wide1060 , aes(x = sixty_minute, y = ten_minute)) +
@@ -155,12 +149,12 @@ ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
 sockeye16weir <- pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_method = "weir", this_year = 2016)
 sockeye17weir <- pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_method = "weir",this_year = 2017)
 sockeye18weir <- pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_method = "weir",this_year = 2018)
-sockeye_values <- bind_rows(sockeye16sonar$values, sockeye17sonar$values, sockeye18sonar$values,sockeye16weir$values, sockeye17weir$values, sockeye18weir$values)
+sockeye_values <- bind_rows(sockeye16weir$values, sockeye17weir$values, sockeye18weir$values)
 
 coho16weir <- pvalues_lm_graph(data = data_gathered, this_species = "coho", this_method = "weir", this_year = 2016)
 coho17weir <- pvalues_lm_graph(data = data_gathered, this_species = "coho", this_method = "weir",this_year = 2017)
 coho18weir <- pvalues_lm_graph(data = data_gathered, this_species = "coho", this_method = "weir",this_year = 2018)
-coho_values <- bind_rows(coho16sonar$values, coho17sonar$values, coho18sonar$values,coho16weir$values, coho17weir$values, coho18weir$values)
+coho_values <- bind_rows(coho16weir$values, coho17weir$values, coho18weir$values)
 
 total16sonar <- pvalues_lm_graph(data = data_gathered, this_species = "total", this_method = "sonar", this_year = 2016)
 total17sonar <- pvalues_lm_graph(data = data_gathered, this_species = "total", this_method = "sonar",this_year = 2017)
@@ -173,19 +167,19 @@ total_values <- bind_rows(total16sonar$values, total17sonar$values, total18sonar
 values <- bind_rows(sockeye_values, coho_values, total_values)
 
 (sort <- values[order(values$wilcox),] )
-#Because we are testing 2x3x3 = 18 hypotheses, then for an alpha level of 0.05, the Bonferroni correction is 0.05/18 = 0.002777778
+#Because we are testing 12 hypotheses, then for an alpha level of 0.05, the Bonferroni correction is 0.05/12 = 0.004166667
 # Since some of the residuals appear to be non i.i.d., we can use non-parametric statistics, using the Wilcoxon rank sum test 
 # Ho: 60 minute count and the 10 minute estimate of fish passage are equivalent.
 # Ha: 60 minute count and the 10 minute estimate of fish passage are not equivalent.
-# In each of the 18 cases we fail to reject the null hypothesis.
+# In each of the 12 cases we fail to reject the null hypothesis.
 
 (sort <- values[order(values$shapiro),] )
-#For 12 the 18 cases the data is normally distributed and hypothesis testing on the linear regression is appropriate
-# Here the Bonferroni correction is 0.05/12 = 0.004166667
+# For 8 the 12 cases the data is normally distributed and hypothesis testing on the linear regression is appropriate
+# Here the Bonferroni correction is 0.05/8 = 0.00625
 # Testing the slopes against the slope = 1
 # Ho: The slope is equivalent to 1 
-# Ho: The solope is not equivalent to 1
-# In all but one case we fail to reject the null hypothesis. That case is the 2016 sonar estimate for coho. 
+# Ho: The slope is not equivalent to 1
+# In all 8 cases we fail to reject the null hypothesis.
 #
 (sort <- values[order(values$slope_eq1),] )
 
@@ -198,20 +192,23 @@ values <- bind_rows(sockeye_values, coho_values, total_values)
 
 save(table_values, file = "output/table_values.Rda")
 
+weirsockeyegraphs <- cowplot::plot_grid(sockeye16weir$graph, sockeye17weir$graph, sockeye18weir$graph,  ncol = 1, scale = c(1,1,1))
+ggsave(paste0("figures/weirsockeyegraphs.png"),dpi=600, height=6, width=9, units="in")
 
-sockeyegraphs <- cowplot::plot_grid(sockeye16sonar$graph, sockeye17sonar$graph, sockeye18sonar$graph, sockeye16weir$graph, sockeye17weir$graph, sockeye18weir$graph, scale = c(1,1,1,1,1,1))
-ggsave(paste0("figures/sockeyegraphs.png"),
-       dpi=600, height=6, width=9, units="in")
-cohographs <- cowplot::plot_grid(coho16sonar$graph, coho17sonar$graph, coho18sonar$graph, coho16weir$graph, coho17weir$graph, coho18weir$graph, scale = c(1,1,1,1,1,1))
-ggsave(paste0("figures/cohographs.png"),
-       dpi=600, height=6, width=9, units="in")
-totalgraphs <- cowplot::plot_grid(total16sonar$graph, total17sonar$graph, total18sonar$graph, total16weir$graph, total17weir$graph, total18weir$graph, scale = c(1,1,1,1,1,1))
-ggsave(paste0("figures/totalgraphs.png"),
-       dpi=600, height=6, width=9, units="in")
+weircohographs <- cowplot::plot_grid(coho16weir$graph, coho17weir$graph, coho18weir$graph, ncol = 1, scale = c(1,1,1))
+ggsave(paste0("figures/weircohographs.png"), dpi=600, height=6, width=9, units="in")
 
-sonar2016 <- cowplot::plot_grid(sockeye16sonar$graph,coho16sonar$graph, total16sonar$graph)
-sonar2017 <- cowplot::plot_grid(sockeye17sonar$graph,coho17sonar$graph, total17sonar$graph)
+cowplot::plot_grid(weirsockeyegraphs, weircohographs, ncol = 2)
+ggsave(paste0("figures/weirsoockeyecoho1060graphs.png"), dpi=600, height=6, width=9, units="in")
 
+(weirtotalgraphs <- cowplot::plot_grid(total16weir$graph, total17weir$graph, total18weir$graph,  ncol = 1, scale = c(1,1,1)))
+ggsave(paste0("figures/weirtotalgraphs.png"),dpi=600, height=6, width=9, units="in")
+
+sonartotalgraphs <- cowplot::plot_grid(total16sonar$graph, total17sonar$graph, total18sonar$graph, ncol = 1, scale = c(1,1,1))
+ggsave(paste0("figures/sonartotalgraphs.png"),dpi=600, height=6, width=9, units="in")
+
+cowplot::plot_grid(weirtotalgraphs, sonartotalgraphs, ncol = 2)
+ggsave(paste0("figures/weirsonartotal1060graphs.png"), dpi=600, height=6, width=9, units="in")
 
 
 #####60 minute weir vs 60 minute sonar
