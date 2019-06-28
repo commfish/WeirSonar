@@ -24,8 +24,7 @@ data_gathered <- data_given %>%
          abundance = as.numeric(abundance),
          period = str_replace(period, "10", "ten_minute"),
          period = str_replace(period, "60", "sixty_minute")) %>% 
-  filter(species %in% c("sockeye", "coho", "total")) %>% #The values of interest 
-  filter(method == "weir" | (method == "sonar" & species == "total")) # For sonar since species are apportioned based on seining, the total is only of interest here.
+  filter(species %in% c("sockeye", "coho", "total"))  #The values of interest 
 
 
 #filter(species %in% c("Chinook", "chum", "dolly-varden"))
@@ -36,8 +35,13 @@ data_NA <- data_gathered %>%
   filter_all(any_vars(is.na(.)))
 #All data apears to be present.
 
-data_wide1060 <- data_gathered %>% #suspicious vehicle
+data_wide1060 <- data_gathered %>% 
+  # For sonar since species are apportioned based on seining, the total is only of interest here.
+  filter(method == "weir" | (method == "sonar" & species == "total")) %>% 
   spread(period, abundance)
+
+data_wide_weir_sonar <- data_gathered %>% 
+  spread(method, abundance)
 
 unique(data_gathered$species)
 
@@ -125,27 +129,6 @@ totaldat <- data_wide1060 %>% filter(species == "total")
 #Individual regression diagnositics and regression graphs follow.  These also have prediction intervals built in.
 #These are preferable for publication purposes
 
-##Sockeye
-##weir
-#set up particular data
-this_species <- "coho"
-this_method <- "sonar"
-this_year <- 2016
-chignik <- data_wide1060  %>% filter(year == this_year, species == this_species, method == this_method) 
-
-# Linear Regression 
-linear_model <- lm_10vs60(chignik)
-summary(linear_model)# show results
-(sock2017weir_shapiro <- shapiro.test(linear_model$residuals)) # Ho: Residuals are normally distributed
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-(sock2017weir_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model))
-  
-#graph
-(sock2017weir_graph <- graph_10vs60(chignik, linear_model, this_year, this_method, this_species))
-ggsave(paste0("figures/", this_year, this_method, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
 sockeye16weir <- pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_method = "weir", this_year = 2016)
 sockeye17weir <- pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_method = "weir",this_year = 2017)
 sockeye18weir <- pvalues_lm_graph(data = data_gathered, this_species = "sockeye", this_method = "weir",this_year = 2018)
@@ -213,137 +196,49 @@ ggsave(paste0("figures/weirsonartotal1060graphs.png"), dpi=600, height=6, width=
 
 #####60 minute weir vs 60 minute sonar
 
+data_wide_weir_sonar60 <- data_wide_weir_sonar %>%
+  filter(period == "sixty_minute")
 
+sockeye16_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "sockeye", this_period = "sixty_minute", this_year = 2016)
+sockeye17_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "sockeye", this_period = "sixty_minute", this_year = 2017)
+sockeye18_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "sockeye", this_period = "sixty_minute", this_year = 2018)
+sockeye_values <- bind_rows(sockeye16_60$values, sockeye17_60$values, sockeye18_60$values)
 
-##Sockeye
-##weir vs sonar
-#set up particular data
-this_species <- "sockeye"
-time_interval <- "weir60sonar60"
-this_year <- 2017
-chignik <- data_gathered %>% 
-  dplyr::select(-ten_minute) %>% 
-  filter(year == this_year, species == this_species) %>%
-  filter(date != "2017-09-03") %>% # This date had outliers for numbers of fish for the sonar. 
-  spread(method, sixty_minute) %>%
-  rename(sonar = "sonar")
+coho16_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "coho", this_period = "sixty_minute", this_year = 2016)
+coho17_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "coho", this_period = "sixty_minute", this_year = 2017)
+coho18_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "coho", this_period = "sixty_minute", this_year = 2018)
+coho_values <- bind_rows(coho16_60$values, coho17_60$values, coho18_60$values)
 
-# Linear Regression 
-linear_model <- lm_weir60vssonar60(chignik)
-summary(linear_model)# show results
+total16_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "total", this_period = "sixty_minute", this_year = 2016)
+total17_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "total", this_period = "sixty_minute", this_year = 2017)
+total18_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "total", this_period = "sixty_minute", this_year = 2018)
+total_values <- bind_rows(total16_60$values, total17_60$values, total18_60$values)
 
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-sock2017weir60sonar60_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
+values <- bind_rows(sockeye_values, coho_values, total_values)
 
-#graph
-sock2017weir60sonar60_graph <- graph_weirvssonar(chignik, linear_model)
-ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
+(sort <- values[order(values$wilcox),] )
+#Because we are testing 9 hypotheses, then for an alpha level of 0.05, the Bonferroni correction is 0.05/9 = 0.005555556
+# Since some of the residuals appear to be non i.i.d., we can use non-parametric statistics, using the Wilcoxon rank sum test 
+# Ho: 60 minute weir count and the 60 minute sonar count of fish passage are equivalent.
+# Ha: 60 minute weir count and the 60 minute sonar count of fish passage are not equivalent.
+# In each of the 9 cases we  ...... reject /fail to reject the null hypothesis.
 
-this_year <- 2018
-chignik <- data_gathered %>% 
-  dplyr::select(-ten_minute) %>% 
-  filter(year == this_year, species == this_species) %>%
-  spread(method, sixty_minute) %>%
-  rename(sonar = "sonar")
+(sort <- values[order(values$shapiro),] )
+# For 3 the 12 cases the data is normally distributed and hypothesis testing on the linear regression is appropriate
+# Here the Bonferroni correction is 0.05/3 = 0.01666667
+# Testing the slopes against the slope = 1
+# Ho: The slope is equivalent to 1 
+# Ho: The slope is not equivalent to 1
+# In all but 1 cases we fail to reject the null hypothesis.
+#
+(sort <- values[order(values$slope_eq1),] )
 
-# Linear Regression 
-linear_model <- lm_weir60vssonar60(chignik)
-summary(linear_model)# show results
+(sort <- values[order(values$species, values$method, values$year),] )
 
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-sock2018weir60sonar60_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
-
-#graph
-sock2018weir60sonar60_graph <- graph_weirvssonar(chignik, linear_model)
-ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-#coho
-
-this_species <- "coho"
-time_interval <- "weir60sonar60"
-this_year <- 2017
-chignik <- data_gathered %>% 
-  dplyr::select(-ten_minute) %>% 
-  filter(year == this_year, species == this_species) %>%
-  filter(date != "2017-09-03") %>% # This date had outliers for numbers of fish for the sonar. 
-  spread(method, sixty_minute) %>%
-  rename(sonar = "sonar")
-
-# Linear Regression 
-linear_model <- lm_weir60vssonar60(chignik)
-summary(linear_model)# show results
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-coho2017weir60sonar60_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
-
-#graph
-coho2017weir60sonar60_graph <- graph_weirvssonar(chignik, linear_model)
-ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-this_year <- 2018
-chignik <- data_gathered %>% 
-  dplyr::select(-ten_minute) %>% 
-  filter(year == this_year, species == this_species) %>%
-  spread(method, sixty_minute) %>%
-  rename(sonar = "sonar")
-
-# Linear Regression 
-linear_model <- lm_weir60vssonar60(chignik)
-summary(linear_model)# show results
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-coho2018weir60sonar60_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
-
-#graph
-coho2018weir60sonar60_graph <- graph_weirvssonar(chignik, linear_model)
-ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-
-
-## total fish
-this_species <- "total"
-time_interval <- "weir60sonar60"
-this_year <- 2017
-chignik <- data_gathered %>% 
-  dplyr::select(-ten_minute) %>% 
-  filter(year == this_year) %>%
-  spread(method, sixty_minute) %>%
-  rename(sonar = "sonar")
-
-# Linear Regression 
-linear_model <- lm_weir60vssonar60(chignik)
-summary(linear_model)# show results
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-total2017weir60sonar60_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
-
-#graph
-total2017weir60sonar60_graph <- graph_weirvssonar(chignik, linear_model)
-ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
-
-this_year <- 2018
-chignik <- data_gathered %>% 
-  dplyr::select(-ten_minute) %>% 
-  filter(year == this_year) %>%
-  spread(method, sixty_minute) %>%
-  rename(sonar = "sonar")
-
-# Linear Regression 
-linear_model <- lm_weir60vssonar60(chignik)
-summary(linear_model)# show results
-
-#Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
-total2018weir60sonar60_pvalue <- pvalue_of_t_test_slope_eq_1(linear_model)
-
-#graph
-total2018weir60sonar60_graph <- graph_weirvssonar(chignik, linear_model)
-ggsave(paste0("figures/", this_year, time_interval, this_species, ".png"),
-       dpi=600, height=6, width=6, units="in")
+(table_values <- sort %>%
+    mutate_if(is.numeric, round, digits = 4) %>%
+    mutate(slope_eq1 = replace(slope_eq1, sort$shapiro < 0.05, NA), # pvalues on not normally distributed data will be off
+           adj_r_squared = replace(adj_r_squared, sort$shapiro < 0.05, NA))) # Same with r^2 value.
 
 #cowplots
 
@@ -359,27 +254,13 @@ weir60sonar60graphs <- cowplot::plot_grid(sockeyeweir60sonar60graphs, cohoweir60
 
 #pvalues
 
-sock2017weir60sonar60_pvalue 
-sock2018weir60sonar60_pvalue 
-coho2017weir60sonar60_pvalue 
-coho2018weir60sonar60_pvalue 
-total2017weir60sonar60_pvalue 
-total2018weir60sonar60_pvalue 
 
 
-#####10 minute weir vs 10 minute sonar
 
-summary(linear_model) # show results
-(adj_r2 = format(summary(linear_model)$adj.r.squared, digits = 3))
-#RMSE <- format(summary(linear_model)$rmse, digits = 3) # doesn't seem to work in all instances.
 
-RSS <- c(crossprod(linear_model$residuals))
-MSE <- RSS / length(linear_model$residuals)
-(RMSE <- sqrt(MSE))
 
-layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
-plot(linear_model)
-plot(linear_model_int0)
+
+
 
 #use to plot the new predicted point
 #new_data <- data.frame(independent_var= 5000) #put in new data point
