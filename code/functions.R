@@ -145,6 +145,10 @@ pvalues_lm_graph <- function(data = data_gathered, this_species, this_method, th
   #Filter out wanted data
   data_gathered <- data_gathered %>% filter(species == this_species, method == this_method, year == this_year)
   
+  #prepare data for parametic tests & graphing
+  data_wide1060 <- data_gathered %>% 
+    spread(period, abundance)
+  
   #Non- parametric test Ho: period of time counting estimates are the same Ha: estimates are different
   wilcox_out <- wilcox.test(abundance ~ period, data = data_gathered, paired = TRUE, alternative = "two.sided")
   wilcox <- wilcox_out$p.value
@@ -183,7 +187,65 @@ pvalues_lm_graph <- function(data = data_gathered, this_species, this_method, th
   year <- this_year
   
   # return data frame of pvalues and adj.r.squared
-  df <- data.frame(species, method, year, wilcox, shapiro, slope_eq1, adj_r_squared)
+  df <- data.frame(species, method, year, wilcox, shapiro, lm, slope_eq1, adj_r_squared)
+  
+  out <- list(values = df, graph = graph)
+  return(out)
+}
+
+pvalues_lm_graph_ws <- function(data = data_wide_weir_sonar60, this_species, this_period, this_year){
+  #this_species <- "sockeye"
+  #this_year <- 2016 
+  #this_period <- "sixty_minute"
+  #Filter out wanted data
+  data_g <- data_gathered %>% filter(species == this_species, period == this_period, year == this_year)
+  
+  #sum(is.na(data_gathered))
+  
+  #prepare data for parametic tests & graphing
+  data_wide <- data_g %>% 
+    spread(method, abundance) %>%
+    # remove instances where there are weir counts but no sonar and vise versa
+    filter(complete.cases(.))
+  
+  data_g <- data_wide %>%
+    gather(method, abundance, c("sonar", "weir"))
+  
+  #Non- parametric test Ho: method counting estimates are the same Ha: estimates are different
+  wilcox_out <- wilcox.test(abundance ~ method, data = data_g, paired = TRUE, alternative = "two.sided")
+  wilcox <- wilcox_out$p.value
+  
+  #data_wide1060 <- chignik
+  
+  #create linear model
+  linear_model <- lm_weir60vssonar60(data_wide)
+  summary(linear_model)# show results
+  
+  #Test for normality of residuals
+  shapiro_out <- shapiro.test(linear_model$residuals)
+  shapiro <- shapiro_out$p.value
+  
+  #Note the following p_values & R squared are only really valid if shapiro_pvalue > 0.05
+  #Test to see if linear regression is statistically significant (in this case aka slope is statistically sig)
+  lm <- coef(summary(linear_model))[2,4]
+  
+  #adjusted r squared for those that like it.
+  adj_r_squared <- summary(linear_model)$adj.r.squared
+  
+  #Test: Ho: The slope of the line is = 1. (AKA periods are equivalent)
+  slope_eq1 <- pvalue_of_t_test_slope_eq_1(linear_model)
+  
+  # Graph regression and put in figure file
+  (graph <- graph_weirvssonar(data_wide, linear_model))
+  ggsave(paste0("figures/", this_species, this_period, this_year, "weir_sonar.png"),
+         dpi=600, height=6, width=6, units="in")
+  
+  species <- this_species 
+  period <- this_period
+  year <- this_year
+  
+  # return data frame of pvalues and adj.r.squared
+  df <- data.frame(species, period, year, wilcox, shapiro, lm, slope_eq1, adj_r_squared)
   
   out <- list(values = df, graph = graph)
   return(out)
