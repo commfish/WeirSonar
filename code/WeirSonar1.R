@@ -10,7 +10,7 @@ options(scipen=999)
 getwd()
 
 # data ----
-data_given <- read_csv('H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar\\data\\chigWeirDidson201618sjp.csv')
+data_given <- read_csv('data/chigWeirDidson201618sjp.csv')
 
 #1057/151
 #first clean data
@@ -26,15 +26,12 @@ data_gathered <- data_given %>%
          period = str_replace(period, "60", "sixty_minute")) %>% 
   filter(species %in% c("sockeye", "coho", "total"))  #The values of interest 
 
-
-#filter(species %in% c("Chinook", "chum", "dolly-varden"))
-#filter(species == "pink")
-
 #Find data with NAs
 data_NA <- data_gathered %>%
   filter_all(any_vars(is.na(.)))
-#All data apears to be present.
+#All data appears to be present.
 
+# data used for comparing estimates based on counting 10 min/hour to a 60 minute 
 data_wide1060 <- data_gathered %>% 
   # For sonar since species are apportioned based on seining, the total is only of interest here.
   filter(method == "weir" | (method == "sonar" & species == "total")) %>% 
@@ -51,80 +48,6 @@ set.seed(1123)
 # This first section is comparing how a 60 minute per hour count (census) compares with 
 # a 10 minute per hour count that is then exapanded by 6. 
 
-regressions <- data_wide1060 %>%
-  nest(-species, -year, -method) %>%
-  mutate(fit = map(data, ~lm(ten_minute ~ sixty_minute, data = .x )),
-         tidied = map(fit, tidy),
-         glanced = map(fit, glance),
-         augmented = map(fit, augment)) 
-
-regressions%>%
-  unnest(tidied)
-
-regressions %>%
-  unnest(glanced, .drop = TRUE)
-#regressions%>%
-#  unnest(augmented, .drop = TRUE)
-
-#Consider the no intercept regressions. This is liekly not needed since they approximately go through 0 anyway.
-regressions <- data_wide1060 %>%
-  nest(-species, -year, -method) %>%
-  mutate(fit = map(data, ~lm(ten_minute ~ 0+sixty_minute, data = .x )),
-         tidied = map(fit, tidy))
-
-regressions%>%
-  unnest(tidied)
-
-
-#Regressions
-
-# This graph combines all years together to see if there are trends by species
-(fish_grid <- ggplot(data_wide1060 , aes(x = sixty_minute, y = ten_minute)) +
-  geom_point() +
-  geom_abline(intercept = 0, slope = 1) + #line y = x for reference
-  geom_smooth(method=lm, se=TRUE) +
-  theme(panel.grid.major = element_line("lightgray",0.5),
-        panel.grid.minor = element_line("lightgray",0.25)) + 
-  ggtitle("60 min vs 10 min 2016-2018") +
-  facet_grid(method ~ species))
-
-#This graph looks at sockeye and displays graphs by year and method (sonar or weir)
-sockeyedat <- data_wide1060 %>% filter(species == "sockeye")
-
-(sockeye_grid <- ggplot(sockeyedat, aes(x = sixty_minute, y = ten_minute)) +
-  geom_point() +
-  geom_abline(intercept = 0, slope = 1) + #line y = x for reference
-  geom_smooth(method=lm, se=TRUE) +
-  theme(panel.grid.major = element_line("lightgray",0.5),
-        panel.grid.minor = element_line("lightgray",0.25)) + 
-  ggtitle("Sockeye 60 min vs 10 min") +
-  facet_grid(method ~ year))
-
-#This graph looks at coho and displays graphs by year and method (sonar or weir)
-cohodat <- data_wide1060 %>% filter(species == "coho")
-
-(coho_grid <- ggplot(cohodat, aes(x = sixty_minute, y = ten_minute)) +
-  geom_point() +
-  geom_abline(intercept = 0, slope = 1) + #line y = x for reference
-  geom_smooth(method=lm, se=TRUE) +
-  theme(panel.grid.major = element_line("lightgray",0.5),
-        panel.grid.minor = element_line("lightgray",0.25)) + 
-  ggtitle("Coho 60 min vs 10 min") +
-  facet_grid(method ~ year) )
-
-
-#This graph looks at totals of all fish passing and displays graphs by year and method (sonar or weir)
-# All fish: Chinook, chum, coho, pinks, dolly varden
-totaldat <- data_wide1060 %>% filter(species == "total")
-
-(total_grid <- ggplot(totaldat, aes(x = sixty_minute, y = ten_minute)) +
-  geom_point() +
-  geom_abline(intercept = 0, slope = 1) + #line y = x for reference
-  geom_smooth(method=lm, se=TRUE) +
-  theme(panel.grid.major = element_line("lightgray",0.5),
-        panel.grid.minor = element_line("lightgray",0.25)) + 
-  ggtitle("total 60 min vs 10 min") +
-  facet_grid(method ~ year))
 
 #Individual regression diagnositics and regression graphs follow.  These also have prediction intervals built in.
 #These are preferable for publication purposes
@@ -194,6 +117,89 @@ cowplot::plot_grid(weirtotalgraphs, sonartotalgraphs, ncol = 2)
 ggsave(paste0("figures/weirsonartotal1060graphs.png"), dpi=600, height=6, width=9, units="in")
 
 
+##Additional code for looking at things.
+regressions <- data_wide1060 %>%
+  nest(-species, -year, -method) %>%
+  mutate(fit = map(data, ~lm(ten_minute ~ sixty_minute, data = .x )),
+         tidied = map(fit, tidy),
+         glanced = map(fit, glance),
+         augmented = map(fit, augment)) 
+
+regressions%>%
+  unnest(tidied)
+
+regressions %>%
+  unnest(glanced, .drop = TRUE)
+#regressions%>%
+#  unnest(augmented, .drop = TRUE)
+
+#Consider the no intercept regressions. This is liekly not needed since they approximately go through 0 anyway.
+regressions <- data_wide1060 %>%
+  nest(-species, -year, -method) %>%
+  mutate(fit = map(data, ~lm(ten_minute ~ 0+sixty_minute, data = .x )),
+         tidied = map(fit, tidy))
+
+regressions%>%
+  unnest(tidied)
+
+
+#Regressions
+
+# This graph combines all years together to see if there are trends by species
+(fish_grid <- ggplot(data_wide1060 , aes(x = sixty_minute, y = ten_minute)) +
+    geom_point() +
+    geom_abline(intercept = 0, slope = 1) + #line y = x for reference
+    geom_smooth(method=lm, se=TRUE) +
+    theme(panel.grid.major = element_line("lightgray",0.5),
+          panel.grid.minor = element_line("lightgray",0.25)) + 
+    ggtitle("60 min vs 10 min 2016-2018") +
+    facet_grid(method ~ species))
+
+#This graph looks at sockeye and displays graphs by year and method (sonar or weir)
+sockeyedat <- data_wide1060 %>% filter(species == "sockeye")
+
+(sockeye_grid <- ggplot(sockeyedat, aes(x = sixty_minute, y = ten_minute)) +
+    geom_point() +
+    geom_abline(intercept = 0, slope = 1) + #line y = x for reference
+    geom_smooth(method=lm, se=TRUE) +
+    theme(panel.grid.major = element_line("lightgray",0.5),
+          panel.grid.minor = element_line("lightgray",0.25)) + 
+    ggtitle("Sockeye 60 min vs 10 min") +
+    facet_grid(method ~ year))
+
+#This graph looks at coho and displays graphs by year and method (sonar or weir)
+cohodat <- data_wide1060 %>% filter(species == "coho")
+
+(coho_grid <- ggplot(cohodat, aes(x = sixty_minute, y = ten_minute)) +
+    geom_point() +
+    geom_abline(intercept = 0, slope = 1) + #line y = x for reference
+    geom_smooth(method=lm, se=TRUE) +
+    theme(panel.grid.major = element_line("lightgray",0.5),
+          panel.grid.minor = element_line("lightgray",0.25)) + 
+    ggtitle("Coho 60 min vs 10 min") +
+    facet_grid(method ~ year) )
+
+
+#This graph looks at totals of all fish passing and displays graphs by year and method (sonar or weir)
+# All fish: Chinook, chum, coho, pinks, dolly varden
+totaldat <- data_wide1060 %>% filter(species == "total")
+
+(total_grid <- ggplot(totaldat, aes(x = sixty_minute, y = ten_minute)) +
+    geom_point() +
+    geom_abline(intercept = 0, slope = 1) + #line y = x for reference
+    geom_smooth(method=lm, se=TRUE) +
+    theme(panel.grid.major = element_line("lightgray",0.5),
+          panel.grid.minor = element_line("lightgray",0.25)) + 
+    ggtitle("total 60 min vs 10 min") +
+    facet_grid(method ~ year))
+
+
+
+
+
+
+
+
 #####60 minute weir vs 60 minute sonar
 
 data_wide_weir_sonar60 <- data_wide_weir_sonar %>%
@@ -221,10 +227,10 @@ values <- bind_rows(sockeye_values, coho_values, total_values)
 # Since some of the residuals appear to be non i.i.d., we can use non-parametric statistics, using the Wilcoxon rank sum test 
 # Ho: 60 minute weir count and the 60 minute sonar count of fish passage are equivalent.
 # Ha: 60 minute weir count and the 60 minute sonar count of fish passage are not equivalent.
-# In each of the 9 cases we  ...... reject /fail to reject the null hypothesis.
+# In all but 2 cases we fail to reject the null hypothesis.
 
 (sort <- values[order(values$shapiro),] )
-# For 3 the 12 cases the data is normally distributed and hypothesis testing on the linear regression is appropriate
+# For 3 the 9 cases the data is normally distributed and hypothesis testing on the linear regression is appropriate
 # Here the Bonferroni correction is 0.05/3 = 0.01666667
 # Testing the slopes against the slope = 1
 # Ho: The slope is equivalent to 1 
@@ -233,35 +239,27 @@ values <- bind_rows(sockeye_values, coho_values, total_values)
 #
 (sort <- values[order(values$slope_eq1),] )
 
-(sort <- values[order(values$species, values$method, values$year),] )
+(sort <- values[order(values$species, values$period, values$year),] )
 
-(table_values <- sort %>%
+(table_values_ws <- sort %>%
     mutate_if(is.numeric, round, digits = 4) %>%
     mutate(slope_eq1 = replace(slope_eq1, sort$shapiro < 0.05, NA), # pvalues on not normally distributed data will be off
            adj_r_squared = replace(adj_r_squared, sort$shapiro < 0.05, NA))) # Same with r^2 value.
 
+save(table_values, file = "output/table_values_ws.Rda")
 #cowplots
 
-sockeyeweir60sonar60graphs <- cowplot::plot_grid(sock2017weir60sonar60_graph, sock2018weir60sonar60_graph, scale = c(1,1))
-#sockeyesonar2017graphs <- cowplot::plot_grid(sock2017sonar_graph, sock2017sonar_graph_outlier, scale = c(1,1))
-cohoweir60sonar60graphs <- cowplot::plot_grid(coho2017weir60sonar60_graph, coho2018weir60sonar60_graph, scale = c(1,1))
-#cohosonar2017graphs <- cowplot::plot_grid(coho2017sonar_graph, coho2017sonar_graph_outlier, scale = c(1,1))
-totalweir60sonar60graphs <- cowplot::plot_grid(total2017weir60sonar60_graph, total2018weir60sonar60_graph, scale = c(1,1))
-#totalsonar2017graphs <- cowplot::plot_grid(total2017sonar_graph, total2017sonar_graph_outlier, scale = c(1,1))
+sockeyeweir60sonar60graphs <- cowplot::plot_grid(sockeye16_60$graph, sockeye17_60$graph, sockeye18_60$graph, scale = c(1,1,1), ncol = 1)
+cohoweir60sonar60graphs <- cowplot::plot_grid(coho16_60$graph, coho17_60$graph, coho18_60$graph, scale = c(1,1,1), ncol = 1)
+totalweir60sonar60graphs <- cowplot::plot_grid(total16_60$graph, total17_60$graph, total18_60$graph, scale = c(1,1,1), ncol = 1)
 
-weir60sonar60graphs <- cowplot::plot_grid(sockeyeweir60sonar60graphs, cohoweir60sonar60graphs, totalweir60sonar60graphs, ncol = 1)
-#withandwithout_outliers <- cowplot::plot_grid(sockeyesonar2017graphs, cohosonar2017graphs, totalsonar2017graphs, ncol = 3)
 
-#pvalues
+weir60sonar60graphs <- cowplot::plot_grid(sockeyeweir60sonar60graphs, cohoweir60sonar60graphs, totalweir60sonar60graphs, ncol = 3)
 
 
 
 
-
-
-
-
-
+###Extra code....
 #use to plot the new predicted point
 #new_data <- data.frame(independent_var= 5000) #put in new data point
 #newpoint <- broom::augment(linear_model, newdata = new_data)
