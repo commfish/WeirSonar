@@ -91,7 +91,7 @@ values <- bind_rows(sockeye_values, coho_values, total_values)
 
 (sort <- values[order(values$species, values$method, values$year),] )
 
-(table_values <- sort %>%
+(table_values_1060 <- sort %>%
   mutate_if(is.numeric, round, digits = 4) %>%
   mutate(slope_eq1 = replace(slope_eq1, sort$shapiro < 0.05, NA), # pvalues on not normally distributed data will be off
          adj_r_squared = replace(adj_r_squared, sort$shapiro < 0.05, NA))) # Same with r^2 value.
@@ -246,16 +246,32 @@ values <- bind_rows(sockeye_values, coho_values, total_values)
     mutate(slope_eq1 = replace(slope_eq1, sort$shapiro < 0.05, NA), # pvalues on not normally distributed data will be off
            adj_r_squared = replace(adj_r_squared, sort$shapiro < 0.05, NA))) # Same with r^2 value.
 
-save(table_values, file = "output/table_values_ws.Rda")
+save(table_values_ws, file = "output/table_values_ws.Rda")
 #cowplots
 
-sockeyeweir60sonar60graphs <- cowplot::plot_grid(sockeye16_60$graph, sockeye17_60$graph, sockeye18_60$graph, scale = c(1,1,1), ncol = 1)
-cohoweir60sonar60graphs <- cowplot::plot_grid(coho16_60$graph, coho17_60$graph, coho18_60$graph, scale = c(1,1,1), ncol = 1)
-totalweir60sonar60graphs <- cowplot::plot_grid(total16_60$graph, total17_60$graph, total18_60$graph, scale = c(1,1,1), ncol = 1)
+sockeye16_60$graph$legend
+s <- sockeyeweir60sonar60graphs <- cowplot::plot_grid(sockeye16_60$graph, sockeye17_60$graph, sockeye18_60$graph, scale = c(1,1,1), ncol = 1)
+title <- ggdraw() + draw_label("Sockeye")
+#legend <- get_legend(s)
+s <- plot_grid(title, s, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
+c <- cohoweir60sonar60graphs <- cowplot::plot_grid(coho16_60$graph, coho17_60$graph, coho18_60$graph, scale = c(1,1,1), ncol = 1)
+title <- ggdraw() + draw_label("Coho")
+c <- plot_grid(title, c, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
-weir60sonar60graphs <- cowplot::plot_grid(sockeyeweir60sonar60graphs, cohoweir60sonar60graphs, totalweir60sonar60graphs, ncol = 3)
+t <- totalweir60sonar60graphs <- cowplot::plot_grid(total16_60$graph, total17_60$graph, total18_60$graph, scale = c(1,1,1), ncol = 1)
+title <- ggdraw() + draw_label("Total")
+t <- plot_grid(title, t, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
+p <- weir60sonar60graphs <- cowplot::plot_grid(sockeyeweir60sonar60graphs, cohoweir60sonar60graphs, totalweir60sonar60graphs, ncol = 3)
+p <- weir60sonar60graphs <- cowplot::plot_grid(s, c, t, ncol = 3)
+
+#Add title
+title <- ggdraw() +draw_label("Comparision of weir census vs sonar census.")
+p <- plot_grid(title, p, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
+p <- add_sub(p, "Weir census. \n--- linear regression\n___ line y = x with slope = 1.")
+ggdraw(p)
+ggsave(paste0("figures/weir60sonar60graphs.png"), dpi=600, height=6, width=9, units="in")
 
 
 

@@ -51,7 +51,15 @@ graph_10vs60 <- function(data, linear_model, this_year, this_method, this_specie
   g.pred  
 }
 
-graph_weirvssonar <- function(data, linear_model) { #, newpoint){
+graph_weir_vs_sonar <- function(data, linear_model, this_year, this_period, this_species) { #, newpoint){
+
+  #data <- data_wide_weir_sonar60
+  #
+  #this_species <- "sockeye"
+  #this_period <- "sixty_minute"
+  #this_year <- 2016
+  #linear_model <- [get code from pvalues_lm_graph_ws function]
+  
   #Use to make 95% CI and PI 
   minweir <- min(data$weir, na.rm = TRUE)
   maxweir <- max(data$weir, na.rm = TRUE)
@@ -70,9 +78,10 @@ graph_weirvssonar <- function(data, linear_model) { #, newpoint){
     geom_abline(intercept = 0, slope = 1) + #line y = x for reference
     theme_bw() +
     theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
-    xlab("weir 60 minute per hour count") +
-    ylab("sonar 60 minute per hour count") +
-    ggtitle(paste0(this_year, " 60 min/hr ", this_species, " weir vs sonar"))
+    xlab(" ") +
+    ylab(this_year) +
+    theme(legend.position="none")
+    #ggtitle(paste0(this_year, " ", this_species, " weir vs sonar ", this_period, "/hr"))
   g.pred  
 }
 
@@ -197,25 +206,21 @@ pvalues_lm_graph_ws <- function(data = data_wide_weir_sonar60, this_species, thi
   #this_species <- "sockeye"
   #this_year <- 2016 
   #this_period <- "sixty_minute"
-  #Filter out wanted data
-  data_g <- data_gathered %>% filter(species == this_species, period == this_period, year == this_year)
   
-  #sum(is.na(data_gathered))
-  
-  #prepare data for parametic tests & graphing
-  data_wide <- data_g %>% 
-    spread(method, abundance) %>%
+  #preparing data, also using in wilcoxon test
+  data_wide <- data_wide_weir_sonar60 %>%
+    #Filter out wanted data
+    filter(species == this_species, period == this_period, year == this_year) %>%
     # remove instances where there are weir counts but no sonar and vise versa
     filter(complete.cases(.))
   
+  #used in linear gression & graphing
   data_g <- data_wide %>%
     gather(method, abundance, c("sonar", "weir"))
   
   #Non- parametric test Ho: method counting estimates are the same Ha: estimates are different
   wilcox_out <- wilcox.test(abundance ~ method, data = data_g, paired = TRUE, alternative = "two.sided")
   wilcox <- wilcox_out$p.value
-  
-  #data_wide1060 <- chignik
   
   #create linear model
   linear_model <- lm_weir60vssonar60(data_wide)
@@ -236,7 +241,7 @@ pvalues_lm_graph_ws <- function(data = data_wide_weir_sonar60, this_species, thi
   slope_eq1 <- pvalue_of_t_test_slope_eq_1(linear_model)
   
   # Graph regression and put in figure file
-  (graph <- graph_weirvssonar(data_wide, linear_model))
+  (graph <- graph_weir_vs_sonar(data_wide, linear_model, this_year, this_period, this_species))
   ggsave(paste0("figures/", this_species, this_period, this_year, "weir_sonar.png"),
          dpi=600, height=6, width=6, units="in")
   
