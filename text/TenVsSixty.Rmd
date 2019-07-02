@@ -15,7 +15,7 @@ Authors: Birch Foster & Sarah Power
 
 knitr::opts_knit$set(root.dir = normalizePath(".."))
 
-
+getwd()
 # Libraries/themes
 
 source("../code/functions.r")
@@ -26,8 +26,8 @@ library(mosaic)
 
 # table_values
 
-load(file = "../output/table_values.Rda")
-
+load(file = "../output/table_values_1060.Rda")
+table_values <- table_values_1060
 
 ```
 
@@ -62,10 +62,11 @@ An expanded 10 minutes per hour count is appropriate for estimating the 60 minut
 # The p-values need to be divided by the number of valid tests (Bonferroni
 # correction)
 n_wilcox <- length(which(is.na(table_values$wilcox) == FALSE))
-n_slope_eq1 <- length(which(is.na(table_values$slope_eq1) == FALSE))
+n_normal <- length(which(is.na(table_values$slope_eq1) == FALSE))
+
 
 # Format sig figs
-table_values[c(4,5,6)] <- lapply(table_values[,c(4,5,6)], formatC,  format="f", digits = 3)
+table_values[c(4, 5, 6, 7)] <- lapply(table_values[,c(4, 5, 6, 7)], formatC,  format="f", digits = 3) #add in lm column
 table_values$adj_r_squared <- formatC(table_values$adj_r_squared, format="f", digits = 2)
 
 table_values <- table_values %>%
@@ -77,7 +78,8 @@ table_values <- table_values %>%
          # Bold values that are significant
          wilcox = ifelse(as.numeric(wilcox) < 0.05/n_wilcox, paste0("**", wilcox, "**"), wilcox),
          shapiro = ifelse(as.numeric(shapiro) < 0.05, paste0("**", shapiro, "**"), shapiro),
-         slope_eq1 = ifelse(as.numeric(slope_eq1) < 0.05/n_slope_eq1, paste0("**", slope_eq1, "**"), slope_eq1))
+         lm = ifelse(as.numeric(lm) < 0.05/n_normal, paste0("**", lm, "**"), lm),
+         slope_eq1 = ifelse(as.numeric(slope_eq1) < 0.05/n_normal, paste0("**", slope_eq1, "**"), slope_eq1))
 
 table_values[table_values == "  NA"] <- " "
 table_values[table_values == " NA"] <- " "
@@ -85,22 +87,25 @@ table_values[is.na(table_values)] <- " "
 
 table_values[table_values == "**0.000**"] <- "**< 0.001**"
 
-colnames(table_values) <- c("Species", "Method", "Year", "Wilcoxon", "Shapiro", "Slope = 1", "Adj $R^2$")
+colnames(table_values) <- c("Species", "Method", "Year", "Wilcoxon", "Linear Reg", "Shapiro", "Slope = 1", "Adj $R^2$")
 
-kable(table_values, align = c('l', 'l', 'r', 'r', 'r', 'r', 'r'))
+kable(table_values, align = c('l', 'l', 'r', 'r', 'r', 'r', 'r', 'r'))
 
 
 
 # unique(table_values$adj_r_squared)
 ```
-
+\pagebreak
 # Figures
-
+<p>
 ![Figure 1.](../figures/weirsoockeyecoho1060graphs.png)
+</p>
 
 
-
+\pagebreak
+<p>
 ![Figure 2.](../figures/weirsonartotal1060graphs.png)
+</p>
 
 
 

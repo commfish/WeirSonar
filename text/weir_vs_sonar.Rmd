@@ -26,16 +26,17 @@ library(mosaic)
 # table_values
 
 load(file = "../output/table_values_ws.Rda")
-
-
+table_values <- table_values_ws
 ```
 
 
 # Introduction
 
 (Birch to re/write.)
-It is often the practice to count the passage of anadromous fish escaping to a river either by sonar or weir. Where both methods may be used on a single river system it is necessary to understand how the two compare. Those instances may arise when a weir fails to be fish tight and uses sonar as a back up; or  where one method (sonar or weir) is used during some number of seasons and another method is used during other seasons.
-Other studies have examined this realtionship (cite here). This study is unique because of its thoroughness. Firstly It takes place over several years for several weeks during the season. Secondly it takes a census of each method during that time period. In otherwords fish were counted for every minute of the day during the time period.** (Perhaps footnote this next bit: There are some fairly short instances where the sonar failed for a certain time period and the percentage of footage per day is noted in the appendicies (cite appendix), but these instances account for a small portion of the entire time period.)
+It is often the practice to count the passage of anadromous fish escaping to a river either by sonar or weir. Where both methods may be used on a single river system it is necessary to understand how the two methods compare. Those instances may arise when a weir fails to be fish tight and uses sonar as a back up; or where one method is used during some number of seasons and another method is used during other seasons.
+
+Other studies have examined this realtionship (cite here). This study is unique because it is comprised of a complete census^[There are instances of sonar failure. The percentage of footage per day is noted in appendix XX, but these instances account for a small portion of the entire time period.] of the two methods during several weeks for three years. While other studies compare the two estimates estimaes are usually made with only a portion of counts every hour. (cite studies where this is the case.)
+
 The study also takes into account species composition via the two methods. For the weir, which has video monitors, species compostion is done via sight. For the sonar, species compostion is done a few times a week when fish are seined to the riverbank. While we could have just compared total fish counted to compare the two numbers we also wanted to understand how variation in methods of species apportionment might affect the relationships. 
 
 The study takes place on the Chignik River in Alaska during 2014 to 2016, for several weeks in August and September. During this time period Sockeye (*Oncorhynchus nerka*) and coho (*Oncorhynchus kisutch*) are abundant and during odd years so are pink (Oncorhyncus gorbuscha). During this time period there may be some less abundant Dolly Varden (*Salvelinus malma*) as well as chum (*Oncorhynchus keta*) & Chinook (*Oncorhynchus tshawytscha*) that are coming in at the tail end of their runs. For our study we will examine the relationship with sockeye, coho, and the total of all fish, regardless of species for weirs and the total of all fish for the sonar.
@@ -45,8 +46,10 @@ For this study fish crossed the weir before the sonar sonar. During 2016 the son
 
 # Methods
 (Birch to write, some details added here:)
-For the sonar only the total of all species combined was compared since species apportionment comes from seining the river every 4 days or so.
-The hourly estimates or counts were summed for each day. 
+A weir is operated on Chignik from approximately X to Y each year. In addition to the in season estimation of fish passage avideo weir recorded fish passage from the begining of August to late September during the 2016 - 2018 years.(Cite table with dates) This footage was examined post season during the years ??. Species composition was determined by sight. 
+
+A sonar was operated from approximately August to late Spetember during the 
+The sonar was operated during a shorter time period than the weir from approximately the beginning of August to late September each year. (Cite table with dates) This footage is examined post season during the years ??. Species composition was determined by seining the river approximately every 4 days and estimating species apportionment from those hauls.
 
 # Analysis
 (Birch to edit)
@@ -60,28 +63,28 @@ In lieu of other data the sonar may be used as a back up, more examination of th
 
 #Tables
 
-
 ```{r my_table, echo=FALSE, message=FALSE, warning=FALSE}
 
 # The p-values need to be divided by the number of valid tests (Bonferroni
 # correction)
 n_wilcox <- length(which(is.na(table_values$wilcox) == FALSE))
-n_slope_eq1 <- length(which(is.na(table_values$slope_eq1) == FALSE))
+n_normal <- length(which(is.na(table_values$slope_eq1) == FALSE))
 
 # Format sig figs
-table_values[c(4,5,6)] <- lapply(table_values[,c(4,5,6)], formatC,  format="f", digits = 3)
+table_values[c(4,5,6,7)] <- lapply(table_values[,c(4,5,6,7)], formatC,  format="f", digits = 3)
 table_values$adj_r_squared <- formatC(table_values$adj_r_squared, format="f", digits = 2)
 
 table_values <- table_values %>%
   mutate(species = derivedVariable("Coho" = species == "coho",
                                    "Sockeye" = species == "sockeye",
                                    "Total" = species == "total"),
-         method = derivedVariable("Weir" = method == "weir",
-                                   "Sonar" = method == "sonar"),
+         period = derivedVariable("60 min./hr." = period == "sixty_minute",
+                                   "Estimate" = period == "ten_minute"),
          # Bold values that are significant
          wilcox = ifelse(as.numeric(wilcox) < 0.05/n_wilcox, paste0("**", wilcox, "**"), wilcox),
          shapiro = ifelse(as.numeric(shapiro) < 0.05, paste0("**", shapiro, "**"), shapiro),
-         slope_eq1 = ifelse(as.numeric(slope_eq1) < 0.05/n_slope_eq1, paste0("**", slope_eq1, "**"), slope_eq1))
+         lm = ifelse(as.numeric(lm) < 0.05/n_normal, paste0("**", lm, "**"), lm),
+         slope_eq1 = ifelse(as.numeric(slope_eq1) < 0.05/n_normal, paste0("**", slope_eq1, "**"), slope_eq1))
 
 table_values[table_values == "  NA"] <- " "
 table_values[table_values == " NA"] <- " "
@@ -89,34 +92,18 @@ table_values[is.na(table_values)] <- " "
 
 table_values[table_values == "**0.000**"] <- "**< 0.001**"
 
-colnames(table_values) <- c("Species", "Method", "Year", "Wilcoxon", "Shapiro", "Slope = 1", "Adj $R^2$")
+colnames(table_values) <- c("Species", "Period", "Year", "Wilcoxon","Shapiro",  "Linear Reg", "Slope = 1", "Adj $R^2$")
 
-kable(table_values, align = c('l', 'l', 'r', 'r', 'r', 'r', 'r'))
+kable(table_values, align = c('l', 'l', 'r', 'r', 'r', 'r', 'r', 'r'))
 
 
 
 # unique(table_values$adj_r_squared)
 ```
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+\pagebreak
+# Figures
 
-## R Markdown
+<p>
+![Figure 1.](../figures/weir60sonar60graphs.png)
+</p>
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
