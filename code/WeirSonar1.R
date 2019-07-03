@@ -204,6 +204,64 @@ totaldat <- data_wide1060 %>% filter(species == "total")
 
 data_wide_weir_sonar60 <- data_wide_weir_sonar %>%
   filter(period == "sixty_minute")
+this_species <- "sockeye"
+this_year <- 2016 
+this_period <- "sixty_minute"
+
+#preparing data, also using in wilcoxon test
+data_wide <- data_wide_weir_sonar60 %>%
+  #Filter out wanted data
+  filter(species == this_species, period == this_period, year == this_year) %>%
+  # remove instances where there are weir counts but no sonar and vise versa
+  filter(complete.cases(.))
+
+#used in linear gression & graphing
+data_g <- data_wide %>%
+  gather(method, abundance, c("sonar", "weir"))
+
+#create linear model
+linear_model <- lm_weir60vssonar60(data_wide)
+summary(linear_model)# show results
+
+
+
+# Graph regression and put in figure file
+(graph <- graph_weir_vs_sonar(data_wide, linear_model, this_year, this_period, this_species))
+ggsave(paste0("figures/", this_species, this_period, this_year, "weir_sonar.png"),
+       dpi=600, height=6, width=6, units="in")
+
+#data <- data_wide_weir_sonar60
+#
+#this_species <- "sockeye"
+#this_period <- "sixty_minute"
+#this_year <- 2016
+#linear_model <- [get code from pvalues_lm_graph_ws function]
+data <- data_wide
+#Use to make 95% CI and PI 
+minweir <- min(data$weir, na.rm = TRUE)
+maxweir <- max(data$weir, na.rm = TRUE)
+predx <- data.frame(weir = seq(from = minweir, to = maxweir, by = (maxweir-minweir)/19))
+
+# ... confidence interval
+conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
+# ... prediction interval
+pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
+
+g.pred <- ggplot(pred.int, aes(x = weir, y = fit)) +
+  geom_point(data = data, aes(x = weir, y = sonar)) + #plots all the points
+  #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
+  geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
+  geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
+  geom_smooth(method = "lm", show.legend = TRUE) + #attempt to add dashed line
+  geom_abline(intercept = 0, slope = 1, lty = "dashed") + #line y = x for reference
+  theme_bw() +
+  theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
+  xlab(" ") +
+  ylab(this_year) +
+  theme(legend.position = "bottom") #?? trying to get a legend.
+  #ggtitle(paste0(this_year, " ", this_species, " weir vs sonar ", this_period, "/hr"))
+  g.pred
+  legend_b <- get_legend(g.pred + theme(legend.position="bottom"))
 
 sockeye16_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "sockeye", this_period = "sixty_minute", this_year = 2016)
 sockeye17_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "sockeye", this_period = "sixty_minute", this_year = 2017)
@@ -249,10 +307,9 @@ values <- bind_rows(sockeye_values, coho_values, total_values)
 save(table_values_ws, file = "output/table_values_ws.Rda")
 #cowplots
 
-sockeye16_60$graph$legend
 s <- sockeyeweir60sonar60graphs <- cowplot::plot_grid(sockeye16_60$graph, sockeye17_60$graph, sockeye18_60$graph, scale = c(1,1,1), ncol = 1)
 title <- ggdraw() + draw_label("Sockeye")
-#legend <- get_legend(s)
+#legend <- get_legend(sockeye16_60$graph)
 s <- plot_grid(title, s, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
 c <- cohoweir60sonar60graphs <- cowplot::plot_grid(coho16_60$graph, coho17_60$graph, coho18_60$graph, scale = c(1,1,1), ncol = 1)
@@ -263,14 +320,36 @@ t <- totalweir60sonar60graphs <- cowplot::plot_grid(total16_60$graph, total17_60
 title <- ggdraw() + draw_label("Total")
 t <- plot_grid(title, t, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
-p <- weir60sonar60graphs <- cowplot::plot_grid(sockeyeweir60sonar60graphs, cohoweir60sonar60graphs, totalweir60sonar60graphs, ncol = 3)
+#p <- weir60sonar60graphs <- cowplot::plot_grid(sockeyeweir60sonar60graphs, cohoweir60sonar60graphs, totalweir60sonar60graphs, ncol = 3)
 p <- weir60sonar60graphs <- cowplot::plot_grid(s, c, t, ncol = 3)
 
 #Add title
-title <- ggdraw() +draw_label("Comparision of weir census vs sonar census.")
+title <- ggdraw() + draw_label("Comparision of weir census vs sonar census.")
 p <- plot_grid(title, p, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
-p <- add_sub(p, "Weir census. \n--- linear regression\n___ line y = x with slope = 1.")
+p <- add_sub(p, "Weir")
+p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", size = 10)
+#p <- p + grid.text("y lable", a = unit(-3, "lines"), rot = 90)
+#ggdraw(add_sub(plot, "Label", vpadding=grid::unit(0,"lines"),y=6, x=0.5, vjust=4.5))
+
+# y label
+y.grob <- textGrob("Sonar", 
+                   gp=gpar(col="black", fontsize=15), rot=90)
+
+#add y label to plot  
+#https://stackoverflow.com/questions/33114380/centered-x-axis-label-for-muliplot-using-cowplot-package
+grid.arrange(arrangeGrob(p, left = y.grob))
+
+
 ggdraw(p)
+annotate_figure(p,
+                top = text_grob("Visualizing mpg", color = "red", face = "bold", size = 14),
+                bottom = text_grob("Data source: \n mtcars data set", color = "blue",
+                                   hjust = 1, x = 1, face = "italic", size = 10),
+                left = text_grob("Figure arranged using ggpubr", color = "green", rot = 90),
+                right = "I'm done, thanks :-)!",
+                fig.lab = "Figure 1", fig.lab.face = "bold"
+)
+
 ggsave(paste0("figures/weir60sonar60graphs.png"), dpi=600, height=6, width=9, units="in")
 
 
