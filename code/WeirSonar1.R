@@ -48,7 +48,6 @@ set.seed(1123)
 # This first section is comparing how a 60 minute per hour count (census) compares with 
 # a 10 minute per hour count that is then exapanded by 6. 
 
-
 #Individual regression diagnositics and regression graphs follow.  These also have prediction intervals built in.
 #These are preferable for publication purposes
 
@@ -96,56 +95,63 @@ values <- bind_rows(sockeye_values, coho_values, total_values)
   mutate(slope_eq1 = replace(slope_eq1, sort$shapiro < 0.05, NA), # pvalues on not normally distributed data will be off
          adj_r_squared = replace(adj_r_squared, sort$shapiro < 0.05, NA))) # Same with r^2 value.
 
-save(table_values, file = "output/table_values.Rda")
+save(table_values_1060, file = "output/table_values_1060.Rda")
 
 weirsockeyegraphs <- cowplot::plot_grid(sockeye16weir$graph, sockeye17weir$graph, sockeye18weir$graph,  ncol = 1, scale = c(1,1,1))
-ggsave(paste0("figures/weirsockeyegraphs.png"),dpi=600, height=6, width=9, units="in")
+title <- ggdraw() + draw_label("Weir Sockeye")
+weirsockeyegraphs <- plot_grid(title, weirsockeyegraphs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
-weircohographs <- cowplot::plot_grid(coho16weir$graph, coho17weir$graph, coho18weir$graph, ncol = 1, scale = c(1,1,1))
-ggsave(paste0("figures/weircohographs.png"), dpi=600, height=6, width=9, units="in")
+weircohographs <- cowplot::plot_grid(coho16weir$graph, coho17weir$graph, coho18weir$graph,  ncol = 1, scale = c(1,1,1))
+title <- ggdraw() + draw_label("Weir Coho")
+weircohographs <- plot_grid(title, weircohographs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
-cowplot::plot_grid(weirsockeyegraphs, weircohographs, ncol = 2)
+weirsockeyecohographs <- cowplot::plot_grid(weirsockeyegraphs, weircohographs, ncol = 2)
+#weirsockeyecohographs <- plot_grid(title, weirsockeyecohographs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
+
+#Add text to graph
+title <- ggdraw() + draw_label("Comparision of 60 min/hr census vs 10 min/hr estimate.")
+p <- plot_grid(title, weirsockeyecohographs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
+p <- add_sub(p, "60 minute per hour census")
+p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", size = 10)
+#p <- p + grid.text("y lable", a = unit(-3, "lines"), rot = 90)
+#ggdraw(add_sub(plot, "Label", vpadding=grid::unit(0,"lines"),y=6, x=0.5, vjust=4.5))
+
+# y label
+y.grob <- textGrob("10 minute per hour estimate", 
+                   gp=gpar(col="black", fontsize=15), rot=90)
+#add y label to plot  
+grid.arrange(arrangeGrob(p, left = y.grob))
 ggsave(paste0("figures/weirsoockeyecoho1060graphs.png"), dpi=600, height=6, width=9, units="in")
 
-(weirtotalgraphs <- cowplot::plot_grid(total16weir$graph, total17weir$graph, total18weir$graph,  ncol = 1, scale = c(1,1,1)))
-ggsave(paste0("figures/weirtotalgraphs.png"),dpi=600, height=6, width=9, units="in")
+
+weirtotalgraphs <- cowplot::plot_grid(total16weir$graph, total17weir$graph, total18weir$graph,  ncol = 1, scale = c(1,1,1))
+title <- ggdraw() + draw_label("Weir Total")
+weirtotalgraphs <- plot_grid(title, weirtotalgraphs, ncol = 1, rel_heights = c(0.1, 1)) 
 
 sonartotalgraphs <- cowplot::plot_grid(total16sonar$graph, total17sonar$graph, total18sonar$graph, ncol = 1, scale = c(1,1,1))
-ggsave(paste0("figures/sonartotalgraphs.png"),dpi=600, height=6, width=9, units="in")
+title <- ggdraw() + draw_label("Sonar Total")
+sonartotalgraphs <- plot_grid(title, sonartotalgraphs, ncol = 1, rel_heights = c(0.1, 1)) 
 
-cowplot::plot_grid(weirtotalgraphs, sonartotalgraphs, ncol = 2)
+weirsonartotalgraphs <- cowplot::plot_grid(weirtotalgraphs, sonartotalgraphs, ncol = 2)
+#Add text to graph
+title <- ggdraw() + draw_label("Comparision of 60 min/hr census vs 10 min/hr estimate.")
+p <- plot_grid(title, weirsonartotalgraphs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
+p <- add_sub(p, "60 minute per hour census")
+p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", size = 10)
+#p <- p + grid.text("y lable", a = unit(-3, "lines"), rot = 90)
+#ggdraw(add_sub(plot, "Label", vpadding=grid::unit(0,"lines"),y=6, x=0.5, vjust=4.5))
+
+# y label
+y.grob <- textGrob("10 minute per hour estimate", 
+                   gp=gpar(col="black", fontsize=15), rot=90)
+#add y label to plot  
+grid.arrange(arrangeGrob(p, left = y.grob))
 ggsave(paste0("figures/weirsonartotal1060graphs.png"), dpi=600, height=6, width=9, units="in")
 
-
-##Additional code for looking at things.
-regressions <- data_wide1060 %>%
-  nest(-species, -year, -method) %>%
-  mutate(fit = map(data, ~lm(ten_minute ~ sixty_minute, data = .x )),
-         tidied = map(fit, tidy),
-         glanced = map(fit, glance),
-         augmented = map(fit, augment)) 
-
-regressions%>%
-  unnest(tidied)
-
-regressions %>%
-  unnest(glanced, .drop = TRUE)
-#regressions%>%
-#  unnest(augmented, .drop = TRUE)
-
-#Consider the no intercept regressions. This is liekly not needed since they approximately go through 0 anyway.
-regressions <- data_wide1060 %>%
-  nest(-species, -year, -method) %>%
-  mutate(fit = map(data, ~lm(ten_minute ~ 0+sixty_minute, data = .x )),
-         tidied = map(fit, tidy))
-
-regressions%>%
-  unnest(tidied)
-
-
-#Regressions
+#Other Regressions Graphs for comparison
 
 # This graph combines all years together to see if there are trends by species
+# note no comparisons for sonar individual speciecies.
 (fish_grid <- ggplot(data_wide1060 , aes(x = sixty_minute, y = ten_minute)) +
     geom_point() +
     geom_abline(intercept = 0, slope = 1) + #line y = x for reference
@@ -154,31 +160,6 @@ regressions%>%
           panel.grid.minor = element_line("lightgray",0.25)) + 
     ggtitle("60 min vs 10 min 2016-2018") +
     facet_grid(method ~ species))
-
-#This graph looks at sockeye and displays graphs by year and method (sonar or weir)
-sockeyedat <- data_wide1060 %>% filter(species == "sockeye")
-
-(sockeye_grid <- ggplot(sockeyedat, aes(x = sixty_minute, y = ten_minute)) +
-    geom_point() +
-    geom_abline(intercept = 0, slope = 1) + #line y = x for reference
-    geom_smooth(method=lm, se=TRUE) +
-    theme(panel.grid.major = element_line("lightgray",0.5),
-          panel.grid.minor = element_line("lightgray",0.25)) + 
-    ggtitle("Sockeye 60 min vs 10 min") +
-    facet_grid(method ~ year))
-
-#This graph looks at coho and displays graphs by year and method (sonar or weir)
-cohodat <- data_wide1060 %>% filter(species == "coho")
-
-(coho_grid <- ggplot(cohodat, aes(x = sixty_minute, y = ten_minute)) +
-    geom_point() +
-    geom_abline(intercept = 0, slope = 1) + #line y = x for reference
-    geom_smooth(method=lm, se=TRUE) +
-    theme(panel.grid.major = element_line("lightgray",0.5),
-          panel.grid.minor = element_line("lightgray",0.25)) + 
-    ggtitle("Coho 60 min vs 10 min") +
-    facet_grid(method ~ year) )
-
 
 #This graph looks at totals of all fish passing and displays graphs by year and method (sonar or weir)
 # All fish: Chinook, chum, coho, pinks, dolly varden
@@ -192,13 +173,6 @@ totaldat <- data_wide1060 %>% filter(species == "total")
           panel.grid.minor = element_line("lightgray",0.25)) + 
     ggtitle("total 60 min vs 10 min") +
     facet_grid(method ~ year))
-
-
-
-
-
-
-
 
 #####60 minute weir vs 60 minute sonar
 
@@ -222,8 +196,6 @@ data_g <- data_wide %>%
 #create linear model
 linear_model <- lm_weir60vssonar60(data_wide)
 summary(linear_model)# show results
-
-
 
 # Graph regression and put in figure file
 (graph <- graph_weir_vs_sonar(data_wide, linear_model, this_year, this_period, this_species))
@@ -334,21 +306,9 @@ p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", si
 # y label
 y.grob <- textGrob("Sonar", 
                    gp=gpar(col="black", fontsize=15), rot=90)
-
 #add y label to plot  
 #https://stackoverflow.com/questions/33114380/centered-x-axis-label-for-muliplot-using-cowplot-package
 grid.arrange(arrangeGrob(p, left = y.grob))
-
-
-ggdraw(p)
-annotate_figure(p,
-                top = text_grob("Visualizing mpg", color = "red", face = "bold", size = 14),
-                bottom = text_grob("Data source: \n mtcars data set", color = "blue",
-                                   hjust = 1, x = 1, face = "italic", size = 10),
-                left = text_grob("Figure arranged using ggpubr", color = "green", rot = 90),
-                right = "I'm done, thanks :-)!",
-                fig.lab = "Figure 1", fig.lab.face = "bold"
-)
 
 ggsave(paste0("figures/weir60sonar60graphs.png"), dpi=600, height=6, width=9, units="in")
 
