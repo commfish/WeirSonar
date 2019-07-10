@@ -92,16 +92,17 @@ values <- bind_rows(sockeye_values, coho_values, total_values)
 
 (table_values_1060 <- sort %>%
   mutate_if(is.numeric, round, digits = 4) %>%
-  mutate(slope_eq1 = replace(slope_eq1, sort$shapiro < 0.05, NA), # pvalues on not normally distributed data will be off
+  mutate(wilcox = replace(wilcox, sort$shapiro >= 0.05, NA), # pvalues normally distributed no need to report Wilcoxon p value
+         slope_eq1 = replace(slope_eq1, sort$shapiro < 0.05, NA), # pvalues on not normally distributed data will be off
          adj_r_squared = replace(adj_r_squared, sort$shapiro < 0.05, NA))) # Same with r^2 value.
 
 save(table_values_1060, file = "output/table_values_1060.Rda")
 
-weirsockeyegraphs <- cowplot::plot_grid(sockeye16weir$graph, sockeye17weir$graph, sockeye18weir$graph,  ncol = 1, scale = c(1,1,1))
+weirsockeyegraphs <- cowplot::plot_grid(sockeye16weir$graph, sockeye17weir$graph, sockeye18weir$graph,  ncol = 1) #, scale = c(1,1,1))
 title <- ggdraw() + draw_label("Weir Sockeye")
 weirsockeyegraphs <- plot_grid(title, weirsockeyegraphs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
-weircohographs <- cowplot::plot_grid(coho16weir$graph, coho17weir$graph, coho18weir$graph,  ncol = 1, scale = c(1,1,1))
+weircohographs <- cowplot::plot_grid(coho16weir$graph, coho17weir$graph, coho18weir$graph,  ncol = 1) #, scale = c(1,1,1))
 title <- ggdraw() + draw_label("Weir Coho")
 weircohographs <- plot_grid(title, weircohographs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
@@ -120,9 +121,8 @@ p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", si
 y.grob <- textGrob("10 minute per hour estimate", 
                    gp=gpar(col="black", fontsize=15), rot=90)
 #add y label to plot  
-grid.arrange(arrangeGrob(p, left = y.grob))
-ggsave(paste0("figures/weirsoockeyecoho1060graphs.png"), dpi=600, height=6, width=9, units="in")
-
+p <- grid.arrange(arrangeGrob(p, left = y.grob))
+ggsave(paste0("figures/weirsoockeyecoho1060graphs.png"), plot = p, dpi=600, height=6, width=9, units="in")
 
 weirtotalgraphs <- cowplot::plot_grid(total16weir$graph, total17weir$graph, total18weir$graph,  ncol = 1, scale = c(1,1,1))
 title <- ggdraw() + draw_label("Weir Total")
@@ -142,13 +142,12 @@ p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", si
 #ggdraw(add_sub(plot, "Label", vpadding=grid::unit(0,"lines"),y=6, x=0.5, vjust=4.5))
 
 # y label
-y.grob <- textGrob("10 minute per hour estimate", 
-                   gp=gpar(col="black", fontsize=15), rot=90)
+y.grob <- textGrob("10 minute per hour estimate", gp=gpar(col="black", fontsize=15), rot=90)
 #add y label to plot  
-grid.arrange(arrangeGrob(p, left = y.grob))
-ggsave(paste0("figures/weirsonartotal1060graphs.png"), dpi=600, height=6, width=9, units="in")
+p <- grid.arrange(arrangeGrob(p, left = y.grob))
+ggsave(paste0("figures/weirsonartotal1060graphs.png"), plot = p, dpi=600, height=6, width=9, units="in")
 
-#Other Regressions Graphs for comparison
+#Other Regression Graphs for comparison
 
 # This graph combines all years together to see if there are trends by species
 # note no comparisons for sonar individual speciecies.
@@ -178,63 +177,7 @@ totaldat <- data_wide1060 %>% filter(species == "total")
 
 data_wide_weir_sonar60 <- data_wide_weir_sonar %>%
   filter(period == "sixty_minute")
-this_species <- "sockeye"
-this_year <- 2016 
-this_period <- "sixty_minute"
-
-#preparing data, also using in wilcoxon test
-data_wide <- data_wide_weir_sonar60 %>%
-  #Filter out wanted data
-  filter(species == this_species, period == this_period, year == this_year) %>%
-  # remove instances where there are weir counts but no sonar and vise versa
-  filter(complete.cases(.))
-
-#used in linear gression & graphing
-data_g <- data_wide %>%
-  gather(method, abundance, c("sonar", "weir"))
-
-#create linear model
-linear_model <- lm_weir60vssonar60(data_wide)
-summary(linear_model)# show results
-
-# Graph regression and put in figure file
-(graph <- graph_weir_vs_sonar(data_wide, linear_model, this_year, this_period, this_species))
-ggsave(paste0("figures/", this_species, this_period, this_year, "weir_sonar.png"),
-       dpi=600, height=6, width=6, units="in")
-
-#data <- data_wide_weir_sonar60
-#
-#this_species <- "sockeye"
-#this_period <- "sixty_minute"
-#this_year <- 2016
-#linear_model <- [get code from pvalues_lm_graph_ws function]
-data <- data_wide
-#Use to make 95% CI and PI 
-minweir <- min(data$weir, na.rm = TRUE)
-maxweir <- max(data$weir, na.rm = TRUE)
-predx <- data.frame(weir = seq(from = minweir, to = maxweir, by = (maxweir-minweir)/19))
-
-# ... confidence interval
-conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
-# ... prediction interval
-pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
-
-g.pred <- ggplot(pred.int, aes(x = weir, y = fit)) +
-  geom_point(data = data, aes(x = weir, y = sonar)) + #plots all the points
-  #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
-  geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
-  geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
-  geom_smooth(method = "lm", show.legend = TRUE) + #attempt to add dashed line
-  geom_abline(intercept = 0, slope = 1, lty = "dashed") + #line y = x for reference
-  theme_bw() +
-  theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
-  xlab(" ") +
-  ylab(this_year) +
-  theme(legend.position = "bottom") #?? trying to get a legend.
-  #ggtitle(paste0(this_year, " ", this_species, " weir vs sonar ", this_period, "/hr"))
-  g.pred
-  legend_b <- get_legend(g.pred + theme(legend.position="bottom"))
-
+  
 sockeye16_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "sockeye", this_period = "sixty_minute", this_year = 2016)
 sockeye17_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "sockeye", this_period = "sixty_minute", this_year = 2017)
 sockeye18_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "sockeye", this_period = "sixty_minute", this_year = 2018)
@@ -273,7 +216,8 @@ values <- bind_rows(sockeye_values, coho_values, total_values)
 
 (table_values_ws <- sort %>%
     mutate_if(is.numeric, round, digits = 4) %>%
-    mutate(slope_eq1 = replace(slope_eq1, sort$shapiro < 0.05, NA), # pvalues on not normally distributed data will be off
+    mutate(wilcox = replace(wilcox, sort$shapiro >= 0.05, NA), # pvalues normally distributed no need to report Wilcoxon p value
+           slope_eq1 = replace(slope_eq1, sort$shapiro < 0.05, NA), # pvalues on not normally distributed data will be off
            adj_r_squared = replace(adj_r_squared, sort$shapiro < 0.05, NA))) # Same with r^2 value.
 
 save(table_values_ws, file = "output/table_values_ws.Rda")
@@ -304,39 +248,13 @@ p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", si
 #ggdraw(add_sub(plot, "Label", vpadding=grid::unit(0,"lines"),y=6, x=0.5, vjust=4.5))
 
 # y label
-y.grob <- textGrob("Sonar", 
-                   gp=gpar(col="black", fontsize=15), rot=90)
+y.grob <- textGrob("Sonar", gp=gpar(col="black", fontsize=15), rot=90)
 #add y label to plot  
 #https://stackoverflow.com/questions/33114380/centered-x-axis-label-for-muliplot-using-cowplot-package
-grid.arrange(arrangeGrob(p, left = y.grob))
+p <- grid.arrange(arrangeGrob(p, left = y.grob))
 
-ggsave(paste0("figures/weir60sonar60graphs.png"), dpi=600, height=6, width=9, units="in")
+ggsave(paste0("figures/weir60sonar60graphs.png"), plot = p, dpi=600, height=6, width=9, units="in")
 
 
 
-###Extra code....
-#use to plot the new predicted point
-#new_data <- data.frame(independent_var= 5000) #put in new data point
-#newpoint <- broom::augment(linear_model, newdata = new_data)
-#pred <- predict(linear_model, newdata = new_data, interval = "prediction", level = 0.95)
-
-####Graphing
-graph_10vs60(data, linear_model)
-graph_10vs60(data, linear_model_int0)
-#Repeated K- fold Cross validation # must make sure there are no NA's
-
-# define training control 
-train_control <- trainControl(method="repeatedcv", number=8, repeats=7)
-#I used number of K-folds = 14 since I have 14*4 = 56 data points
-length(data$dependent_var)/4
-# train the model
-model <- train(dependent_var ~ 0 + independent_var, data=data, trControl=train_control, method="lm")
-#model <- train(dependent_var ~ independent_var, data=data, trControl=train_control, method="lm")
-# summarize results
-print(model) #get full model RMSE (Root Mean Square Error)
-
-dependent_var_pred <- predict(model, data) # necessary step to get training RMSE
-postResample(pred = dependent_var_pred, obs = data$dependent_var) #To get trainign RMSE
-#Compare training RMSE to (full) RMSE
-# If training RMSE is similare to full RMSE then expect similar predictive results in the future. 
 
