@@ -1,11 +1,11 @@
 ---
 title: "Comparing weir counts to sonar counts"
 author: "Sarah Power"
-date: "7/1/2019"
+date: "7/10/2019"
 output: pdf_document
 ---
 
-Authors: Birch Foster & Sarah Power
+Authors: Birch Foster & Sarah Power (Birch still to edit/ amend / rewrite)
 
 ```{r set-options, echo=FALSE, message=FALSE}
 
@@ -32,44 +32,57 @@ table_values <- table_values_ws
 
 # Introduction
 
-(Birch to re/write.)
-It is often the practice to count the passage of anadromous fish escaping to a river either by sonar or weir. Where both methods may be used on a single river system it is necessary to understand how the two methods compare. Those instances may arise when a weir fails to be fish tight and uses sonar as a back up; or where one method is used during some number of seasons and another method is used during other seasons.
+It is often the practice to count the passage of anadromous fish escaping to a river either by sonar or weir. Where both methods may be used on a single river system it is necessary to understand how the two methods compare. Those instances may arise when a weir fails to be fish tight and sonar counts are used as a back up; or where one method is used during some number of seasons and another method is used during other seasons.
 
-Other studies have examined this realtionship (cite here). This study is unique because it is comprised of a complete census^[There are instances of sonar failure. The percentage of footage per day is noted in appendix XX, but these instances account for a small portion of the entire time period.] of the two methods during several weeks for three years. While other studies compare the two estimates estimaes are usually made with only a portion of counts every hour. (cite studies where this is the case.)
+Other studies have examined this realtionship (cite here). This study is unique because it is comprised of a complete census^[There were instances of sonar failure. The percentage of footage per day is noted in appendix XX, but these instances account for a small portion of the entire time period.] of the two methods during several weeks for three years. While other studies compare the two estimates estimates are usually made with only a portion of counts every hour. (Cite studies where this is the case.)
 
-The study also takes into account species composition via the two methods. For the weir, which has video monitors, species compostion is done via sight. For the sonar, species compostion is done a few times a week when fish are seined to the riverbank. While we could have just compared total fish counted to compare the two numbers we also wanted to understand how variation in methods of species apportionment might affect the relationships. 
+The study takes into account species composition via the two methods. For the weir, which has video monitors, species composition is done via sight. For the sonar species composition via sight is not possible instead, species composition is derived a few times a week from fish which are seined to the riverbank. While we could have just compared total fish counted to compare the two numbers we also wanted to understand how variation in methods of species apportionment might affect the relationships. 
 
-The study takes place on the Chignik River in Alaska during 2014 to 2016, for several weeks in August and September. During this time period Sockeye (*Oncorhynchus nerka*) and coho (*Oncorhynchus kisutch*) are abundant and during odd years so are pink (Oncorhyncus gorbuscha). During this time period there may be some less abundant Dolly Varden (*Salvelinus malma*) as well as chum (*Oncorhynchus keta*) & Chinook (*Oncorhynchus tshawytscha*) that are coming in at the tail end of their runs. For our study we will examine the relationship with sockeye, coho, and the total of all fish, regardless of species for weirs and the total of all fish for the sonar.
-
-For this study fish crossed the weir before the sonar sonar. During 2016 the sonar was located a upstream of the weir. This location was not ideal as there was question as to whether the site in question was optimal for a sonar due to fish milling back and forth. The sonar was moved closer to the weir in 2017-2018.
-
+The study takes place on the Chignik River in Alaska during 2014 to 2016, for several weeks in August and September. During this time period Sockeye (*Oncorhynchus nerka*) and coho (*Oncorhynchus kisutch*) are abundant and during odd years so are pink (Oncorhyncus gorbuscha). During this time period there may be some less abundant Dolly Varden (*Salvelinus malma*) as well as chum (*Oncorhynchus keta*) & Chinook (*Oncorhynchus tshawytscha*) that are coming in at the tail end of their runs. For our study we will examine the relationship with sockeye, coho, and the total of all fish, regardless of species for weirs and sonar.
 
 # Methods
-(Birch to write, some details added here:)
-A weir is operated on Chignik from approximately X to Y each year. In addition to the in season estimation of fish passage avideo weir recorded fish passage from the begining of August to late September during the 2016 - 2018 years.(Cite table with dates) This footage was examined post season during the years ??. Species composition was determined by sight. 
 
-A sonar was operated from approximately August to late Spetember during the 
-The sonar was operated during a shorter time period than the weir from approximately the beginning of August to late September each year. (Cite table with dates) This footage is examined post season during the years ??. Species composition was determined by seining the river approximately every 4 days and estimating species apportionment from those hauls.
+A weir is operated on Chignik from approximately X to Y each year. In addition to the in season estimation of fish passage a video weir recorded fish passage from the begining of August to late September during the 2016 - 2018 years.(Cite table with dates) This footage was examined post season during the years ??. Species composition was determined by sight. 
+
+A sonar was operated from approximately August to late September each year. (Cite table with dates) This footage is examined post season during the years ??. Species composition was determined by seining the river approximately every 4 days and estimating species apportionment from those hauls.
 
 # Analysis
-(Birch to edit)
-There were 9 relationships examined. There were two species, sockeye and coho, as well as the total of all species, including non-sockeye and non-coho, which gave three species groupings, and for each of those we analyzed three years. 
-A linear regression between  weir counts and sonar counts was produced. (Figure 1) Since some of the residuals appeared to be not independently and identically distributed, we used the non-parametric Wilcoxon rank sum test to examine the relationships first. Because we were testing 9 hypotheses, the Bonferroni correction for an alpha of 0.05 is 0.05/9, approximately 0.005.
-Our null hypothesis is that weir and sonar enumeration of fish passage is equivalent, the alternative is that they are not. In 3 of the 9 cases we fail to reject the null hypothesis. (Table 1, column Wilcoxon)
-For 4 of the 9 cases the data is normally distributed and hypothesis testing on the linear regression is appropriate. (Table 1, column Shapiro). Only 2 of those 4 regressions were statistically significant with p values <= 0.02.  WE used the Bonferroni correction is 0.05/4 approximately 0.013 for futher testing. For the 2 regressions that were significant we tested the equivalency of sonar and wier counts with a null hypothesis was that the regression's slope was equivalent to 1, our alternative hypothesis was that it was not. In one case we failed to reject the null hypothesis. (Table 1, column slope_eq1).
-# Discussion
-The sonar to weir relationship is not consistent.
-In lieu of other data the sonar may be used as a back up, more examination of the data may be conducted to understand why in some instances the relationship is poor or even negatively related (sockeye 2017). Further examintions of river height may be conducted in the future.
+We tested that weir and sonar counts had similar distributions, and when conditions allowed we tested that the slope of the regression made from them was equal to 1. 
 
-#Tables
+There were 9 relationships examined. There were two species, sockeye and coho, as well as the total of all species, which gave three species groupings. Each of those 3 species groupings were analyzed on three separate years which gave a total of 9 relationships.
+
+A linear regression between  weir counts and sonar counts was produced for each of the relationships. (Figure 1) 
+
+In 5 of the 9 regressions the residuals appeared to be not independently and identically distributed (Table 1, shapiro column). We used the non-parametric Wilcoxon rank sum test to examine those relationships first. Because we were testing 5 hypotheses, the Bonferroni correction for an alpha of 0.05 is 0.05/5 = 0.01.
+For these tests our null hypothesis was that the distributions of weir and sonar enumeration of fish passage were equivalent, the alternative was that they were not. In 1 of the 5 cases, the daily total of all species in 2017, we rejected the null hypothesis. (Table 1, column Wilcoxon).In the other four we failed to reject the null hypothesis at an alpha of 0.01.
+
+For 4 of the 9 regressions the data was normally distributed and hypothesis testing on the linear regression was appropriate. (Table 1, column Shapiro). In 2 of those 4 regressions the regressions were not statistically significant with pvalues of 0.14 and 0.18. One might interpret this as asying there was not a strong relationship between the weir counts and sonar counts in these instances. For the regressions where the relationship was significant, we used the Bonferroni correction of 0.05/4 or approximately 0.013 for the alpha level. For these tests the null hypothesis was that the regression's slope was equivalent to 1, our alternative hypothesis was that it was not. In one case we failed to reject the null hypothesis. (Table 1, column slope_eq1).
+
+There were 4 regressions that supported the notion that sonar and weir relationships are equivalent. There were 5 where there was evidence to support that either the distributions were found to be different (Table 1, Wilcoxon pvalue < 0.01), the regression relationship was weak (Table 1, Linear Reg pvalue > 0.10) or that the slope of the regression was not equal to 1 (Table 1, Slope = 1 pvalue)
+
+# Discussion
+
+For this study fish crossed the weir before the sonar. During 2016 the sonar was located further upstream of the weir. This location was not ideal as there was question as to whether the site in question was optimal for a sonar due to fish milling back and forth. The sonar was moved closer to the weir in 2017-2018.
+
+# Conclusions
+
+The sonar to weir relationship is not consistent. Considering both the analysis and the graphs in Figure 1 we can see that were instances where the sonar and the weir track adequately, however there were other instances where the relationship does not appear to be equivalent.
+More examination of the data may be conducted to understand why in some instances the relationship is poor or even negatively related (sockeye 2017). Further examinations of river height may be conducted in the future.
+
+
+# Table 1
 
 ```{r my_table, echo=FALSE, message=FALSE, warning=FALSE}
 
-# The p-values need to be divided by the number of valid tests (Bonferroni
+table_values <- table_values %>%
+  mutate(wilcox = replace(wilcox, table_values$shapiro >= 0.05, NA)) # pvalues on normally distributed so we won't report wilcox value
+
+         # The p-values need to be divided by the number of valid tests (Bonferroni
 # correction)
 n_wilcox <- length(which(is.na(table_values$wilcox) == FALSE))
-n_normal <- length(which(is.na(table_values$slope_eq1) == FALSE))
-
+n_normal <- length(which(is.na(table_values$slope_eq1) == FALSE))        
+         
+         
 # Format sig figs
 table_values[c(4,5,6,7)] <- lapply(table_values[,c(4,5,6,7)], formatC,  format="f", digits = 3)
 table_values$adj_r_squared <- formatC(table_values$adj_r_squared, format="f", digits = 2)
@@ -92,7 +105,7 @@ table_values[is.na(table_values)] <- " "
 
 table_values[table_values == "**0.000**"] <- "**< 0.001**"
 
-colnames(table_values) <- c("Species", "Period", "Year", "Wilcoxon","Shapiro",  "Linear Reg", "Slope = 1", "Adj $R^2$")
+colnames(table_values) <- c("Species", "Period", "Year", "Shapiro", "Wilcoxon", "Linear Reg", "Slope = 1", "Adj $R^2$")
 
 kable(table_values, align = c('l', 'l', 'r', 'r', 'r', 'r', 'r', 'r'))
 
