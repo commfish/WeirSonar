@@ -11,11 +11,16 @@ library(ggplot2)
 library(broom)#for cleaning up data, used in prediction
 library(caret)#used for cross validation 
 library(cowplot)
+library(grid)
+library(gridExtra)
 library(purrr)
+library(reshape2)
 #library(naniar)
 #library(stringr)
 library(dplyr)
-library(PairedData)
+#library(PairedData)
+#library(scales)
+#library(ggpubr)
 
 # functions ----
 
@@ -42,12 +47,12 @@ graph_10vs60 <- function(data, linear_model, this_year, this_method, this_specie
     #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
     geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
     geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
-    geom_abline(intercept = 0, slope = 1) + #line y = x for reference
+    geom_abline(intercept = 0, slope = 1, lty = "dashed") + #line y = x for reference
     theme_bw() +
     theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
-    xlab("60 minute per hour count") +
-    ylab("10 minute per hour estimate") +
-    ggtitle(paste0(this_year, " ", this_method, " ", this_species, " 10 vs.60"))
+    xlab("") +
+    ylab(this_year)
+    #ggtitle(paste0(this_year, " ", this_method, " ", this_species, " 10 vs.60"))
   g.pred  
 }
 
@@ -75,12 +80,15 @@ graph_weir_vs_sonar <- function(data, linear_model, this_year, this_period, this
     #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
     geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
     geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
-    geom_abline(intercept = 0, slope = 1) + #line y = x for reference
+    #geom_smooth(method = "lm", show.legend = TRUE) + #attempt to add dashed line
+    geom_abline(intercept = 0, slope = 1, lty = "dashed") + #line y = x for reference
     theme_bw() +
     theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
     xlab(" ") +
     ylab(this_year) +
-    theme(legend.position="none")
+    theme(legend.position = "bottom") #?? trying to get a legend.
+  #ggtitle(paste0(this_year, " ", this_species, " weir vs sonar ", this_period, "/hr"))
+  g.pred
     #ggtitle(paste0(this_year, " ", this_species, " weir vs sonar ", this_period, "/hr"))
   g.pred  
 }
@@ -121,29 +129,10 @@ lm_10vs60 <- function(data){
   return(linear_model)
 }
 
-lm_60vs10 <- function(data){
-  linear_model <- lm(sixty_minute ~ ten_minute, data = data)
-  layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
-  plot(linear_model)
-  return(linear_model)
-}
-
 lm_weir60vssonar60 <- function(data){
   linear_model <- lm(sonar ~ weir , data = data)
   #layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
   #plot(linear_model)
-  return(linear_model)
-}
-lm_weir10vssonar10 <- function(data){
-  linear_model <- lm(weir ~ sonar , data = data)
-  layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
-  plot(linear_model)
-  return(linear_model)
-}
-lm_weir60vssonar10 <- function(data){
-  linear_model <- lm(weir60 ~ sonar10 , data = data)
-  layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
-  plot(linear_model)
   return(linear_model)
 }
 
@@ -186,17 +175,16 @@ pvalues_lm_graph <- function(data = data_gathered, this_species, this_method, th
   #Test: Ho: The slope of the line is = 1. (AKA methods are equivalent)
   slope_eq1<- pvalue_of_t_test_slope_eq_1(linear_model)
   
-  # Graph regression and put in figure file
+  # Graph regression
   (graph <- graph_10vs60(data_wide1060, linear_model, this_year, this_method, this_species))
-  ggsave(paste0("figures/", this_species, this_method, this_year, ".png"),
-         dpi=600, height=6, width=6, units="in")
+  #ggsave(paste0("figures/", this_species, this_method, this_year, ".png"), dpi=600, height=6, width=6, units="in")
   
   species <- this_species 
   method <- this_method
   year <- this_year
   
   # return data frame of pvalues and adj.r.squared
-  df <- data.frame(species, method, year, wilcox, shapiro, lm, slope_eq1, adj_r_squared)
+  df <- data.frame(species, method, year, shapiro, wilcox, lm, slope_eq1, adj_r_squared)
   
   out <- list(values = df, graph = graph)
   return(out)
@@ -242,15 +230,14 @@ pvalues_lm_graph_ws <- function(data = data_wide_weir_sonar60, this_species, thi
   
   # Graph regression and put in figure file
   (graph <- graph_weir_vs_sonar(data_wide, linear_model, this_year, this_period, this_species))
-  ggsave(paste0("figures/", this_species, this_period, this_year, "weir_sonar.png"),
-         dpi=600, height=6, width=6, units="in")
+  #ggsave(paste0("figures/", this_species, this_period, this_year, "weir_sonar.png"), dpi=600, height=6, width=6, units="in")
   
   species <- this_species 
   period <- this_period
   year <- this_year
   
   # return data frame of pvalues and adj.r.squared
-  df <- data.frame(species, period, year, wilcox, shapiro, lm, slope_eq1, adj_r_squared)
+  df <- data.frame(species, period, year, shapiro, wilcox, lm, slope_eq1, adj_r_squared)
   
   out <- list(values = df, graph = graph)
   return(out)
