@@ -1,12 +1,12 @@
 ---
-title: "Ten minute per hour estimates vs sixty minute per hour censuses for weirs and sonar."
-author: "Sarah Power for Birch Foster ... (Birch still to edit/ amend/ rewrite text."
-date: "6/21/2019"
+title: "Expanded ten minute per hour estimates vs sixty minute per hour counts for weirs and sonar."
+author: "Sarah Power & Birch Foster"
+date: "7/10/2019"
 output:
   pdf_document: default
 
 ---
-Authors: Birch Foster & Sarah Power
+
 
 ```{r set-options, echo=FALSE, message=FALSE}
 
@@ -32,29 +32,34 @@ table_values_1060 <- table_values_1060
 # Introduction
 
 It is often the practice to count the passage of anadromous fish escaping to a river for 10 minutes of each hour and expand that count by 6 in order to estimate the entire hours passage of fish. This study examines the assumption that counting for 10-minutes of each hour and expanding by 6 can represent a full census, or counting 60 minutes of each hour.
-The study took place on the Chignik River in Alaska during 2014 to 2016, for several weeks in August and September. During this time period Sockeye (*Oncorhynchus nerka*) and coho (*Oncorhynchus kisutch*) are abundant and during odd years so are pink (Oncorhyncus gorbuscha). There may be some less abundant Dolly Varden (*Salvelinus malma*) as well as chum (*Oncorhynchus keta*) & Chinook (*Oncorhynchus tshawytscha*) that are coming in at the tail end of their runs. The relationship was examined by  year, species (or total of all speciecs combined), and method of enumeration, namely weir or sonar. For weirs we will examine the relationship with sockeye, coho, and the total of all fish, regardless of species and  for the sonar the total of all fish.
+The study took place on the Chignik River in Alaska during 2014 to 2016, for several weeks in August and September. During this time period sockeye (*Oncorhynchus nerka*) and coho salmon (*O. kisutch*) are abundant and during odd years so are pink salmon(O. gorbuscha). There may be some less abundant Dolly Varden (*Salvelinus malma*) as well as chum (*O. keta*) & Chinook salmon (*O. tshawytscha*) that are are present but less abundant in the escapement. The relationship was examined by year, species (or total of all speciecs combined), and method of enumeration, namely weir or sonar. For weirs we will examine the relationship with sockeye, coho, and the total of all fish, regardless of species and  for the sonar the total of all fish.
 
 # Methods
 
 There were two methods with which to enumerate fish passage the weir and the sonar.
 
-The weir was set up to be fish tight. There was a boat ramp to allow for passage of boats. Fish were sometimes able to use this to circumvent the weir however this occured at an insignificant rate. In order for fish to pass through the weir they had to pass through a channel for which a video recording was made. 
+The Chignik River weir is a roughly 100 m pile-driven structure that is set up to be fish tight using aluminum panels with 25 mm spacing. A boat gate, open only when necessary, allows for passage of boats and all salmon escaping during boat passage were visually estimated. In order for fish to pass through the weir they had to pass through a channel for which a video recording was made. 
 
-Two sonars on opposing banks of the river were set up whose range extended approximately X meters across the river. The ranges were non overlapping and the middle sometimes swiftest current of the stream was not ennumerated. The sonar images were recorded for post season enumeration of fish passage. Fish species was not determined by the sonar images. Because of this only the total of all species combined was evaluated since species apportionment comes from seining the river every 4 days or so. To do it by species would only confound the relationship we were examining which was whether the 10-minute-per-hour estimate, represents the censused count well. 
+Upstream, two DIDSON sonars^[Use of DIDSON name does not imply endorsement.] on opposing banks of the river were set up whose range extended almost across the entirety of the river, which is 70 m at the sonar location. The ranges were non-overlapping and the middle (2-3 m) was not ensonified. The sonar images were recorded for post season enumeration of fish passage. Fish species was not determined by the sonar images. Species apportionment for sonar comes from beach seining the river every 4 days or so. A comparison by species between weir and sonar would only confound the relationship we were examining which was whether the expanded 10-minute-per-hour estimate, represents the censused count well. Because of this only the total of all species combined was evaluated for sonar.
 
-For both the weir and the sonar, the 10 minute estimates of the total net gain (number traveling up - number traveling down) of fish passage  up the river was recorded. This number was multiplied by 6 to come up with an estimate for the entire hour. For the 60 minute census the entire 60 minute net gain of fish passage up the river was recorded to come up with the census count for that hour. These two counts were done post season. The hourly estimates or counts were summed for each day. 
+For both the weir and the sonar, the 10-minute estimates of the total net gain (number traveling up - number traveling down) of upstream fish passage was recorded. This number was multiplied by 6 to come up with an estimate for the entire hour. This was done in season. For the 60-minute census the entire 60-minute net gain of upstream fish passage was recorded to come up with the census count for that hour. This was done post season. The hourly estimates or counts were summed for each day.
 
 It should be noted that fish passage for both the weir and sonar primarily occured during daylight hours. So while hour to hour comparisons would not be expected to be as similar due to the confounding nature of fish passage from the weir to the sonar, daily estimates and counts should compare well.
 
 # Analysis
 
-There were 12 census-to-estimate relationships examined. For the weir there was sockeye, coho, and total fish passage. For the sonar there was total fish passage. That makes a total of 4 species or species groupings, each which were examined for the 2014-2016 years.
-A linear regression between the independent variable, 60-minute counts, and the dependent variable, 10-minute estimates, was produced. (Figures 1 & 2) Since some of the residuals appeared to be not independently and identically distributed (Table 1, Shaperio column, bolded pvalues), we used the non-parametric Wilcoxon rank sum test to examine the relationships first. Because we were testing 12 hypotheses, the Bonferroni correction for an alpha of 0.05 was 0.05/12, approximately 0.004.
-Our null hypothesis was that the 60-minute count and the 10-minute estimate of fish passage were equivalent, the alternative was that they were not. In each of the 12 cases we failed to reject the null hypothesis. (Table 1, column Wilcoxon) This gives support to the notion that the 10 minute counts may adequately estimate the 60 minute counts.
-For 8 of the 12 cases the data was normally distributed and hypothesis testing on the linear regression was appropriate. (Table 1, column Shapiro).  Here the Bonferroni correction was 0.05/8 = 0.00625. All regressions were statistically significant with p values < 0.001 (Table 1, column lm). In order to test if estimates and census counts were equivalent our null hypothesis was that the regression's slope was equivalent to 1, our alternative hypothesis was that it was not. In all 8 cases we failed to reject the null hypothesis. (Table 1, column slope_eq1). This also gives support to the notion that 10 minute counts adequately estimate the 60 minute counts.
+There were 12 census-to-estimate relationships examined. For the weir there was sockeye, coho, and total fish passage. For the sonar there was total fish passage. That makes a total of 4 species or species groupings, each which were examined for the 2014-2016 years for a total of 12 relationships.
+
+A linear regression between the independent variable, 60-minute counts, and the dependent variable, expanded 10-minute estimates, was produced. (Figures 1 & 2) 
+
+Since some of the residuals appeared to be not independently and identically distributed (Table 1, Shapiro column, bolded pvalues), we used the non-parametric Wilcoxon rank sum test to examine the relationships first. Because we were testing 12 hypotheses, the Bonferroni correction for an alpha of 0.05 was 0.05/12, approximately 0.004.
+
+Our null hypothesis was that the 60-minute count and the expanded 10-minute estimate of fish passage were equivalent, the alternative was that they were not. In each of the 12 cases we failed to reject the null hypothesis. (Table 1, column Wilcoxon) This gives support to the notion that the 10-minute counts may adequately estimate the 60-minute counts.
+
+For 8 of the 12 cases the data was normally distributed and hypothesis testing on the linear regression was appropriate. (Table 1, column Shapiro).  Here the Bonferroni correction was 0.05/8 = 0.00625. All regressions were statistically significant with p values < 0.001 (Table 1, column Linear Reg). In order to test if estimates and census counts were equivalent our null hypothesis was that the regression's slope was equivalent to 1, our alternative hypothesis was that it was not. In all 8 cases we failed to reject the null hypothesis. (Table 1, column slope_eq1). This also gives support to the notion that expanded 10-minute counts adequately estimate the 60-minute counts.
 
 # Conclusion
-An expanded 10 minutes per hour count was appropriate for estimating the 60 minute census, and at a fraction of the cost of doing a census. 
+An expanded 10-minutes per hour count was appropriate for estimating the 60-minute census, and at a fraction of the cost of doing a census. 
 
 # Table 1
 
@@ -89,7 +94,7 @@ table_values_1060[is.na(table_values_1060)] <- " "
 
 table_values_1060[table_values_1060 == "**0.000**"] <- "**< 0.001**"
 
-colnames(table_values_1060) <- c("Species", "Method", "Year", "Wilcoxon", "Shapiro", "Linear Reg", "Slope = 1", "Adj $R^2$")
+colnames(table_values_1060) <- c("Species", "Method", "Year", "Shapiro", "Wilcoxon", "Linear Reg", "Slope = 1", "Adj $R^2$")
 
 kable(table_values_1060, align = c('l', 'l', 'r', 'r', 'r', 'r', 'r', 'r'))
 
