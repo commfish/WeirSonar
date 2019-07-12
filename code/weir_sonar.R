@@ -37,15 +37,15 @@ f_fig <- function(data, YEAR){
   
   data %>% 
     group_split(method, species, year) %>%
-    map_df(~{fit = lm(ln_sixty ~ ln_ten, data = .)
+    map_df(~{fit = lm(ln_ten ~ ln_sixty, data = .)
     
     data.frame(., ci = predict(fit, ., interval = 'confidence'),
                pi = predict(fit, ., interval = 'prediction'))
     }) %>% 
     filter(year==YEAR) %>% 
     # left_join(., data) %>% 
-    ggplot(aes(ten_minute, ci.fit)) + 
-    geom_point(aes(y = sixty_minute), alpha = 0.5) +
+    ggplot(aes(sixty_minute, ci.fit)) + 
+    geom_point(aes(y = ten_minute), alpha = 0.5) +
     facet_wrap(species~method, dir = "v", ncol = 3, scales = "free") +
     geom_ribbon(aes(ymin = exp(ci.lwr), ymax = exp(ci.upr)), alpha = 0.4) +
     geom_ribbon(aes(ymin = exp(pi.lwr), ymax = exp(pi.upr)), alpha = 0.2) +
@@ -54,14 +54,14 @@ f_fig <- function(data, YEAR){
     scale_x_continuous(labels = scales::comma) +
     scale_y_continuous(labels = scales::comma) +
     ylab("Model fit") +
-    xlab("Ten minute estimate")
+    xlab("Hour census")
 }
 
 # fit models ----
 data %>% 
   group_by(species, year, method) %>% 
   nest() %>% 
-  mutate(fit = purrr::map(data, ~lm(ln_sixty ~ ln_ten, data = .)),
+  mutate(fit = purrr::map(data, ~lm(ln_ten ~ ln_sixty, data = .)),
          slopes = purrr::map(fit, ~ slope_eq_1(.), data = .),
          shapiro = purrr::map(fit, ~shapiro.test(.$residuals))) -> models
 
