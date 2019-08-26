@@ -1,1 +1,7 @@
-sdgsdgf
+Sarah Power
+
+2019 August 26
+
+Adjusted multi-graph panels heights and widths to fit in 8.5X 11 document.
+Changed default blue color to black.
+Couldn't seem to get the minimum y value to be 0. Either it would cut out the prediction & confident intervals or it wouldn't graph at all. Dispite this graphs display apprpriate information, so at this juncture we will leave it as it is. 
