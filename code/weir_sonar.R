@@ -96,8 +96,8 @@ data %>%
 
 # figures ---
 
-f_fig(data, 2016)
-f_fig(data, 2017)
+f_fig(data, 2016) + ggtitle("2016")
+f_fig(data, 2017) + ggtitle("2017")
 f_fig(data, 2018) + ggtitle("2018")
 
 # table ----

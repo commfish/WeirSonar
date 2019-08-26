@@ -45,8 +45,8 @@ graph_10vs60 <- function(data, linear_model, this_year, this_method, this_specie
   g.pred <- ggplot(pred.int, aes(x = sixty_minute, y = fit)) +
     geom_point(data = data, aes(x = sixty_minute, y = ten_minute)) + #plots all the points
     #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
-    geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
-    geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
+    geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), colour="black",  stat = "identity") + # prediction interval
+    geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), colour="black",  stat = "identity") + #confidence interval
     geom_abline(intercept = 0, slope = 1, lty = "dashed") + #line y = x for reference
     theme_bw() +
     theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
@@ -74,48 +74,18 @@ graph_weir_vs_sonar <- function(data, linear_model, this_year, this_period, this
   conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
   # ... prediction interval
   pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
-  
+  #yaxismin <- max(0, )
   g.pred <- ggplot(pred.int, aes(x = weir, y = fit)) +
     geom_point(data = data, aes(x = weir, y = sonar)) + #plots all the points
     #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
-    geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
-    geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
+    geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), colour="black", stat = "identity") + # prediction interval
+    geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), colour="black", stat = "identity") + #confidence interval
     #geom_smooth(method = "lm", show.legend = TRUE) + #attempt to add dashed line
     geom_abline(intercept = 0, slope = 1, lty = "dashed") + #line y = x for reference
     theme_bw() +
-    theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
+    theme(text = element_text(size = 10), axis.text.x = element_text(size = 8), axis.text.y = element_text(size = 8)) +
     xlab(" ") +
-    ylab(this_year) +
-    theme(legend.position = "bottom") #?? trying to get a legend.
-  #ggtitle(paste0(this_year, " ", this_species, " weir vs sonar ", this_period, "/hr"))
-  g.pred
-    #ggtitle(paste0(this_year, " ", this_species, " weir vs sonar ", this_period, "/hr"))
-  g.pred  
-}
-
-graph_template <- function(data){
-  # Linear Regression 
-  linear_model<- lm(dep ~ indep , data=data)
-  #Use to make 95% CI and PI 
-  minindep <- min(data$indep, na.rm = TRUE)
-  maxindep <- max(data$indep, na.rm = TRUE)
-  predx <- data.frame(indep = seq(from = minindep, to = maxindep, by = (maxindep-minindep)/19))
-  
-  # ... confidence interval
-  conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
-  # ... prediction interval
-  pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
-  
-  
-  g.pred <- ggplot(pred.int, aes(x = indep, y = fit)) +
-    geom_point(data = data, aes(x = indep, y = dep)) + #plots all the points
-    geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), stat = "identity") + # prediction interval
-    geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), stat = "identity") + #confidence interval
-    theme_bw() +
-    theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
-    xlab("indep") +
-    ylab("dep") #+
-   #ggtitle("ten_minute vs sixty_minute")
+    ylab(this_year)
   g.pred  
 }
 

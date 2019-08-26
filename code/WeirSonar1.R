@@ -12,7 +12,6 @@ getwd()
 # data ----
 data_given <- read_csv('data/chigWeirDidson201618sjp.csv')
 
-#1057/151
 #first clean data
 data_gathered <- data_given %>%
   dplyr::select(-starts_with("prop")) %>%
@@ -37,6 +36,7 @@ data_wide1060 <- data_gathered %>%
   filter(method == "weir" | (method == "sonar" & species == "total")) %>% 
   spread(period, abundance)
 
+# data used for comparing estimates based on weir vs sonar
 data_wide_weir_sonar <- data_gathered %>% 
   spread(method, abundance)
 
@@ -119,10 +119,10 @@ p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", si
 
 # y label
 y.grob <- textGrob("10 minute per hour estimate", 
-                   gp=gpar(col="black", fontsize=15), rot=90)
+                   gp=gpar(col="black", fontsize=15), rot = 90)
 #add y label to plot  
 p <- grid.arrange(arrangeGrob(p, left = y.grob))
-ggsave(paste0("figures/weirsoockeyecoho1060graphs.png"), plot = p, dpi=600, height=6, width=9, units="in")
+ggsave(paste0("figures/weirsockeyecoho1060graphs.png"), plot = p, dpi = 600, height = 10, width = 7, units ="in")
 
 weirtotalgraphs <- cowplot::plot_grid(total16weir$graph, total17weir$graph, total18weir$graph,  ncol = 1, scale = c(1,1,1))
 title <- ggdraw() + draw_label("Weir Total")
@@ -145,7 +145,7 @@ p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", si
 y.grob <- textGrob("10 minute per hour estimate", gp=gpar(col="black", fontsize=15), rot=90)
 #add y label to plot  
 p <- grid.arrange(arrangeGrob(p, left = y.grob))
-ggsave(paste0("figures/weirsonartotal1060graphs.png"), plot = p, dpi=600, height=6, width=9, units="in")
+ggsave(paste0("figures/weirsonartotal1060graphs.png"), plot = p, dpi = 600, height = 10, width = 7, units="in")
 
 #Other Regression Graphs for comparison
 
@@ -253,7 +253,7 @@ y.grob <- textGrob("Sonar", gp=gpar(col="black", fontsize=15), rot=90)
 #https://stackoverflow.com/questions/33114380/centered-x-axis-label-for-muliplot-using-cowplot-package
 p <- grid.arrange(arrangeGrob(p, left = y.grob))
 
-ggsave(paste0("figures/weir60sonar60graphs.png"), plot = p, dpi=600, height=6, width=9, units="in")
+ggsave(paste0("figures/weir60sonar60graphs.png"), plot = p, dpi= 600, height= 8, width = 7, units="in")
 
 
 
