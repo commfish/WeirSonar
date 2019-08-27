@@ -7,6 +7,7 @@
 # load ----
 library(tidyverse)
 library(calibrate)
+library(extrafont)
 library(ggplot2)
 library(broom)#for cleaning up data, used in prediction
 library(caret)#used for cross validation 
@@ -23,6 +24,12 @@ library(dplyr)
 #library(ggpubr)
 
 # functions ----
+#font_import() #only do this one time since it takes awhile.
+loadfonts(device = "win")
+windowsFonts(Times=windowsFont("TT Times New Roman"))
+theme_set(theme_bw(base_size=12, base_family='TT Times New Roman'))#+ 
+          #  theme(panel.grid.major = element_blank(),
+          #        panel.grid.minor = element_blank()))
 
 #returns a p value from a t distribution testing if the slope of the line is equvalend to 1. (In which case x and y are interchageable.)
 pvalue_of_t_test_slope_eq_1 <- function(linear_model = lm){
@@ -48,8 +55,9 @@ graph_10vs60 <- function(data, linear_model, this_year, this_method, this_specie
     geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), colour="black",  stat = "identity") + # prediction interval
     geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), colour="black",  stat = "identity") + #confidence interval
     geom_abline(intercept = 0, slope = 1, lty = "dashed") + #line y = x for reference
-    theme_bw() +
-    theme(text = element_text(size=10), axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10)) +
+    theme_update(text = element_text(size=10), 
+                 axis.text.x = element_text(size = 10,  angle = 45, hjust = 1, vjust = 0.9), 
+                 axis.text.y = element_text(size = 10)) +
     xlab("") +
     ylab(this_year)
     #ggtitle(paste0(this_year, " ", this_method, " ", this_species, " 10 vs.60"))
@@ -82,8 +90,10 @@ graph_weir_vs_sonar <- function(data, linear_model, this_year, this_period, this
     geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), colour="black", stat = "identity") + #confidence interval
     #geom_smooth(method = "lm", show.legend = TRUE) + #attempt to add dashed line
     geom_abline(intercept = 0, slope = 1, lty = "dashed") + #line y = x for reference
-    theme_bw() +
-    theme(text = element_text(size = 10), axis.text.x = element_text(size = 8), axis.text.y = element_text(size = 8)) +
+    #theme_bw() +
+    theme_update(text = element_text(size = 10), 
+                 axis.text.x = element_text(size = 10, angle = 45, hjust = 1, vjust = 0.9), 
+                 axis.text.y = element_text(size = 10)) +
     xlab(" ") +
     ylab(this_year)
   g.pred  
@@ -160,6 +170,7 @@ pvalues_lm_graph <- function(data = data_gathered, this_species, this_method, th
   return(out)
 }
 
+#_ws = weir sonar
 pvalues_lm_graph_ws <- function(data = data_wide_weir_sonar60, this_species, this_period, this_year){
   #this_species <- "sockeye"
   #this_year <- 2016 
