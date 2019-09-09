@@ -52,8 +52,9 @@ graph_10vs60 <- function(data, linear_model, this_year, this_method, this_specie
   g.pred <- ggplot(pred.int, aes(x = sixty_minute, y = fit)) +
     geom_point(data = data, aes(x = sixty_minute, y = ten_minute)) + #plots all the points
     #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
-    geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), colour="black",  stat = "identity") + # prediction interval
-    geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), colour="black",  stat = "identity") + #confidence interval
+    geom_smooth(data = pred.int, aes(ymin = pmax(lwr,0), ymax = upr), colour="black",  stat = "identity") + # prediction interval
+    geom_smooth(data = conf.int, aes(ymin = pmax(lwr,0), ymax = upr), colour="black",  stat = "identity") + #confidence interval
+    #geom_errorbar(aes(ymax=upper, ymin=lower), position=dodge) +
     geom_abline(intercept = 0, slope = 1, lty = "dashed") + #line y = x for reference
     theme_update(text = element_text(size=10), 
                  axis.text.x = element_text(size = 10,  angle = 45, hjust = 1, vjust = 0.9), 
