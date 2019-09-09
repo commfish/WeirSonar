@@ -97,6 +97,8 @@ values <- bind_rows(sockeye_values, coho_values, total_values)
          adj_r_squared = replace(adj_r_squared, sort$shapiro < 0.05, NA))) # Same with r^2 value.
 
 save(table_values_1060, file = "output/table_values_1060.Rda")
+write.csv(table_values_1060,"H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar\\output\\table_values_1060.csv", row.names = FALSE)
+
 
 weirsockeyegraphs <- cowplot::plot_grid(sockeye16weir$graph, sockeye17weir$graph, sockeye18weir$graph,  ncol = 1) #, scale = c(1,1,1))
 title <- ggdraw() + draw_label("Weir Sockeye", fontfamily = 'Times New Roman')
@@ -223,6 +225,7 @@ values <- bind_rows(sockeye_values, coho_values, total_values)
            adj_r_squared = replace(adj_r_squared, sort$shapiro < 0.05, NA))) # Same with r^2 value.
 
 save(table_values_ws, file = "output/table_values_ws.Rda")
+write.csv(table_values_ws,"H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar\\output\\table_values_ws.csv", row.names = FALSE)
 #cowplots
 
 s <- sockeyeweir60sonar60graphs <- cowplot::plot_grid(sockeye16_60$graph, sockeye17_60$graph, sockeye18_60$graph, scale = c(1,1,1), ncol = 1)
