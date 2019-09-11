@@ -16,12 +16,8 @@ library(grid)
 library(gridExtra)
 library(purrr)
 library(reshape2)
-#library(naniar)
-#library(stringr)
 library(dplyr)
-#library(PairedData)
-#library(scales)
-#library(ggpubr)
+
 
 # functions ----
 #font_import() #only do this one time since it takes awhile.
@@ -65,9 +61,9 @@ graph_10vs60 <- function(data, linear_model, this_year, this_method, this_specie
   g.pred  
 }
 
-graph_weir_vs_sonar <- function(data, linear_model, this_year, this_period, this_species) { #, newpoint){
+graph_weir_vs_sonar <- function(data, linear_model, this_year, this_period, this_species) { 
 
-  #data <- data_wide_weir_sonar60
+  #data <- data_wide <- data_wide_weir_sonar60
   #
   #this_species <- "sockeye"
   #this_period <- "sixty_minute"
@@ -78,25 +74,35 @@ graph_weir_vs_sonar <- function(data, linear_model, this_year, this_period, this
   minweir <- min(data$weir, na.rm = TRUE)
   maxweir <- max(data$weir, na.rm = TRUE)
   predx <- data.frame(weir = seq(from = minweir, to = maxweir, by = (maxweir-minweir)/19))
-  
+  regression_data <- c(format(summary(linear_model)$r.squared, digits = 3), format(summary(linear_model)$coefficients[2,4], digits = 3))
+  colnames(regression_data) <- c("R^2", "pvalue")
+  r2 <- paste("r^2 = ", format(summary(linear_model)$r.squared, digits = 3))
+  pval <- paste("pvalue = ", format(summary(linear_model)$coefficients[2,4], digits = 3))  
   # ... confidence interval
   conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
   # ... prediction interval
   pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
   #yaxismin <- max(0, )
   g.pred <- ggplot(pred.int, aes(x = weir, y = fit)) +
-    #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
-    geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), colour="black", stat = "identity") + # prediction interval
-    geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), colour="black", stat = "identity") + #confidence interval
+    geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr, fill = "prediction interval", color = "#dedede"), color = "#dedede", stat = "identity") + # prediction interval
+    geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr, fill = "confidence interval", color = "#999999"), color = "#999999", stat = "identity") + #confidence interval
     geom_point(data = data, aes(x = weir, y = sonar)) + #plots all the points
     #geom_smooth(method = "lm", show.legend = TRUE) + #attempt to add dashed line
     geom_abline(intercept = 0, slope = 1, lty = "dashed") + #line y = x for reference
     #theme_bw() +
+    geom_label(x = -Inf, y = +Inf, hjust = "inward", vjust = 1, label = paste(r2), parse = TRUE) +
+    geom_label(x = -Inf, y = +Inf, hjust = "inward", vjust = 2, label = paste(pval), parse = TRUE) +
     theme_update(text = element_text(size = 10), 
                  axis.text.x = element_text(size = 10, angle = 45, hjust = 1, vjust = 0.9), 
                  axis.text.y = element_text(size = 10)) +
-    xlab(" ") +
-    ylab(this_year)
+    xlab("Daily upstream weir fish estimate.") +
+    ylab("Daily upstream fish sonar estimate.") + 
+    ggtitle(paste0(this_year, " Sonar vs Weir estimates of daily upstream migration of ", this_species)) + 
+    theme(legend.position="top")
+    #scale_fill_manual(values=c("#e6e6e6", "#bcbcbc"), 
+    #                       name="Interval",
+    #                       breaks=c("pred.int", "conf.int"),
+    #                       labels=c("Prediction Interval", "Confidence Interval"))
   g.pred  
 }
 
