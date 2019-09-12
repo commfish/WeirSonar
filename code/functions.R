@@ -95,10 +95,11 @@ graph_weir_vs_sonar <- function(data, linear_model, this_year, this_period, this
     theme_update(text = element_text(size = 10), 
                  axis.text.x = element_text(size = 10, angle = 45, hjust = 1, vjust = 0.9), 
                  axis.text.y = element_text(size = 10)) +
-    xlab("Daily upstream weir fish estimate.") +
-    ylab("Daily upstream fish sonar estimate.") + 
+    xlab(paste("Estimate of daily upstream migration of ", this_species, " by weir")) +
+    ylab(paste("Estimate of daily upstream migration of ", this_species, " by sonar")) +
     ggtitle(paste0(this_year, " Sonar vs Weir estimates of daily upstream migration of ", this_species)) + 
-    theme(legend.position="top")
+    theme(legend.position="right",
+          legend.direction = "vertical")
     #scale_fill_manual(values=c("#e6e6e6", "#bcbcbc"), 
     #                       name="Interval",
     #                       breaks=c("pred.int", "conf.int"),
