@@ -98,9 +98,15 @@ graph_weir_vs_sonar <- function(data, linear_model, this_year, this_period, this
     xlab(paste("Estimate of daily upstream migration of ", this_species, " by weir")) +
     ylab(paste("Estimate of daily upstream migration of ", this_species, " by sonar")) +
     ggtitle(paste0(this_year, " Sonar vs Weir estimates of daily upstream migration of ", this_species)) + 
+    labs(fill = "intervals")  +
+    scale_fill_manual(
+      values = c("#ededed", "#919191"),
+      name = "Intervals",
+      labels = c("Prediction Interval", "Confidence Interval")
+    ) +
     theme(legend.position="right",
           legend.direction = "vertical")
-    #scale_fill_manual(values=c("#e6e6e6", "#bcbcbc"), 
+    #scale_fill_manual(values=c("#e6e6e6", "#a0a0a0"), 
     #                       name="Interval",
     #                       breaks=c("pred.int", "conf.int"),
     #                       labels=c("Prediction Interval", "Confidence Interval"))
