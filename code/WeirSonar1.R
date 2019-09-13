@@ -7,6 +7,7 @@
 # load ----
 source('code/functions.R')
 options(scipen=999)
+#setwd("H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar")
 getwd()
 
 # data ----
@@ -99,7 +100,6 @@ values <- bind_rows(sockeye_values, coho_values, total_values)
 save(table_values_1060, file = "output/table_values_1060.Rda")
 write.csv(table_values_1060,"H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar\\output\\table_values_1060.csv", row.names = FALSE)
 
-
 weirsockeyegraphs <- cowplot::plot_grid(sockeye16weir$graph, sockeye17weir$graph, sockeye18weir$graph,  ncol = 1) #, scale = c(1,1,1))
 title <- ggdraw() + draw_label("Weir Sockeye", fontfamily = 'Times New Roman')
 weirsockeyegraphs <- plot_grid(title, weirsockeyegraphs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
@@ -112,16 +112,16 @@ weirsockeyecohographs <- cowplot::plot_grid(weirsockeyegraphs, weircohographs, n
 #weirsockeyecohographs <- plot_grid(title, weirsockeyecohographs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
 #Add text to graph
-#title <- ggdraw() + draw_label("Comparison of 60 min/hr census vs 10 min/hr estimate.")
+title <- ggdraw() + draw_label("Comparison of 60 min/hr census vs 10 min/hr estimate for fish passage upstream.")
 # p <- plot_grid(title, weirsockeyecohographs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 p <- plot_grid(weirsockeyecohographs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
-p <- add_sub(p, "60 minute per hour census", fontfamily = 'Times New Roman')
+p <- add_sub(p, "60 minute per hour census of daily fish passage upstream.", fontfamily = 'Times New Roman')
 #p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", size = 10)
 #p <- p + grid.text("y lable", a = unit(-3, "lines"), rot = 90)
 #ggdraw(add_sub(plot, "Label", vpadding=grid::unit(0,"lines"),y=6, x=0.5, vjust=4.5))
 
 # y label
-y.grob <- textGrob("10 minute per hour estimate", 
+y.grob <- textGrob("10 minute per hour estimates of daily fish passage upstream.", 
                    gp=gpar(col="black", fontsize=15, fontfamily = 'Times New Roman'), rot = 90)
 #add y label to plot  
 p <- grid.arrange(arrangeGrob(p, left = y.grob))
@@ -140,7 +140,7 @@ weirsonartotalgraphs <- cowplot::plot_grid(weirtotalgraphs, sonartotalgraphs, nc
 #title <- ggdraw() + draw_label("Comparision of 60 min/hr census vs 10 min/hr estimate.")
 #p <- plot_grid(title, weirsonartotalgraphs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 p <- plot_grid(weirsonartotalgraphs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
-p <- add_sub(p, "60 minute per hour census", fontfamily = 'Times New Roman')
+p <- add_sub(p, "60 minute per hour census of daily fish passage upstream.", fontfamily = 'Times New Roman')
 #p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", size = 10)
 #p <- p + grid.text("y lable", a = unit(-3, "lines"), rot = 90)
 #ggdraw(add_sub(plot, "Label", vpadding=grid::unit(0,"lines"),y=6, x=0.5, vjust=4.5))
@@ -186,6 +186,13 @@ sockeye16_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species 
 sockeye17_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "sockeye", this_period = "sixty_minute", this_year = 2017)
 sockeye18_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "sockeye", this_period = "sixty_minute", this_year = 2018)
 sockeye_values <- bind_rows(sockeye16_60$values, sockeye17_60$values, sockeye18_60$values)
+
+
+
+p3 <- grid.arrange(arrangeGrob(sockeye16_60$graph + theme(legend.position="none"),
+                               sockeye17_60$graph + theme(legend.position="none"),
+                               nrow=1),
+                   mylegend, nrow=2,heights=c(10, 1))
 
 coho16_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "coho", this_period = "sixty_minute", this_year = 2016)
 coho17_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "coho", this_period = "sixty_minute", this_year = 2017)
@@ -245,21 +252,52 @@ t <- plot_grid(title, t, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values
 p <- weir60sonar60graphs <- cowplot::plot_grid(s, c, t, ncol = 3)
 
 #Add title
-##title <- ggdraw() + draw_label("Comparison of weir census vs sonar census.")
-#p <- plot_grid(title, p, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
+title <- ggdraw() + draw_label("Weir vs sonar of daily upstream passage of fish at Chignik Alaska.")
+p <- plot_grid(title, p, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 p <- plot_grid(p, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
-p <- add_sub(p, "Weir", fontfamily = 'Times New Roman')
-#p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", size = 10)
+p <- add_sub(p, "Daily upstream passage of fish at the weir.", fontfamily = 'Times New Roman')
+p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", size = 10)
 #p <- p + grid.text("y lable", a = unit(-3, "lines"), rot = 90)
 #ggdraw(add_sub(plot, "Label", vpadding=grid::unit(0,"lines"),y=6, x=0.5, vjust=4.5))
 
 # y label
-y.grob <- textGrob("Sonar", gp=gpar(col="black", fontsize=15, fontfamily = 'Times New Roman'), rot=90)
+y.grob <- textGrob("Daily upstream passage of fish at the sonar", gp=gpar(col="black", fontsize=15, fontfamily = 'Times New Roman'), rot=90)
 #add y label to plot  
 #https://stackoverflow.com/questions/33114380/centered-x-axis-label-for-muliplot-using-cowplot-package
 p <- grid.arrange(arrangeGrob(p, left = y.grob))
 
+### add legends
+this_species <- "sockeye"
+this_year <- 2016 
+this_period <- "sixty_minute"
+
+#preparing data, also using in wilcoxon test
+data_wide <- data_wide_weir_sonar60 %>%
+  #Filter out wanted data
+  filter(species == this_species, period == this_period, year == this_year) %>%
+  # remove instances where there are weir counts but no sonar and vise versa
+  filter(complete.cases(.))
+
+#used in linear gression & graphing
+data_g <- data_wide %>%
+  gather(method, abundance, c("sonar", "weir"))
+
+#create linear model
+linear_model <- lm_weir60vssonar60(data_wide)
+summary(linear_model)# show results
+
+# Graph regression and put in figure file
+(graph <- graph_weir_vs_sonar_labels(data_wide, linear_model, this_year, this_period, this_species))
+ggsave(paste0("figures/", this_species, this_period, this_year, "weir_sonarlabels.png"), dpi=600, height=6, width=6, units="in")
+cipi_legend <- get_legend(graph)
+line_legend <- get_line_legend(data_wide_weir_sonar60, this_year, this_period, this_species)
+
+p3 <- grid.arrange(arrangeGrob(p,
+                               nrow=1),
+                   cipi_legend, nrow=2,heights=c(10, 1))
+
 ggsave(paste0("figures/weir60sonar60graphs.png"), plot = p, dpi= 600, height= 8, width = 7, units="in")
+ggsave(paste0("figures/weir60sonar60graphs2.png"), plot = p3, dpi= 600, height= 8, width = 7, units="in")
 
 
 

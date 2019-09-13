@@ -22,8 +22,8 @@ library(dplyr)
 # functions ----
 #font_import() #only do this one time since it takes awhile.
 loadfonts(device = "win")
-windowsFonts(Times=windowsFont("TT Times New Roman"))
-theme_set(theme_bw(base_size=12, base_family='TT Times New Roman'))#+ 
+windowsFonts(Times=windowsFont("Times New Roman"))
+theme_set(theme_bw(base_size=12, base_family='Times New Roman'))#+ 
           #  theme(panel.grid.major = element_blank(),
           #        panel.grid.minor = element_blank()))
 
@@ -63,6 +63,42 @@ graph_10vs60 <- function(data, linear_model, this_year, this_method, this_specie
 
 graph_weir_vs_sonar <- function(data, linear_model, this_year, this_period, this_species) { 
 
+  #data <- data_wide_weir_sonar60
+  #
+  #this_species <- "sockeye"
+  #this_period <- "sixty_minute"
+  #this_year <- 2016
+  #linear_model <- [get code from pvalues_lm_graph_ws function]
+  
+  #Use to make 95% CI and PI 
+  minweir <- min(data$weir, na.rm = TRUE)
+  maxweir <- max(data$weir, na.rm = TRUE)
+  predx <- data.frame(weir = seq(from = minweir, to = maxweir, by = (maxweir-minweir)/19))
+  
+  # ... confidence interval
+  conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
+  # ... prediction interval
+  pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
+  #yaxismin <- max(0, )
+  g.pred <- ggplot(pred.int, aes(x = weir, y = fit)) +
+    #geom_point(data = newpoint, aes(y = .fitted), size = 3, color = "red") + # add new point optional must specify newpoint when calling function.
+    geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr), colour="black", stat = "identity") + # prediction interval
+    geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr), colour="black", stat = "identity") + #confidence interval
+    geom_point(data = data, aes(x = weir, y = sonar)) + #plots all the points
+    #geom_smooth(method = "lm", show.legend = TRUE) + #attempt to add dashed line
+    geom_abline(intercept = 0, slope = 1, lty = "dashed") + #line y = x for reference
+    #theme_bw() +
+    scale_x_continuous(labels = scales::comma) +
+    scale_y_continuous(labels = scales::comma) +
+    theme_update(text = element_text(size = 10), 
+                 axis.text.x = element_text(size = 10, angle = 45, hjust = 1, vjust = 0.9), 
+                 axis.text.y = element_text(size = 10)) +
+    xlab(" ") +
+    ylab(this_year)
+  g.pred 
+}
+graph_weir_vs_sonar_labels <- function(data, linear_model, this_year, this_period, this_species) { 
+  
   #data <- data_wide <- data_wide_weir_sonar60
   #
   #this_species <- "sockeye"
@@ -75,7 +111,6 @@ graph_weir_vs_sonar <- function(data, linear_model, this_year, this_period, this
   maxweir <- max(data$weir, na.rm = TRUE)
   predx <- data.frame(weir = seq(from = minweir, to = maxweir, by = (maxweir-minweir)/19))
   regression_data <- c(format(summary(linear_model)$r.squared, digits = 3), format(summary(linear_model)$coefficients[2,4], digits = 3))
-  colnames(regression_data) <- c("R^2", "pvalue")
   r2 <- paste("r^2 = ", format(summary(linear_model)$r.squared, digits = 3))
   pval <- paste("pvalue = ", format(summary(linear_model)$coefficients[2,4], digits = 3))  
   # ... confidence interval
@@ -84,8 +119,8 @@ graph_weir_vs_sonar <- function(data, linear_model, this_year, this_period, this
   pred.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
   #yaxismin <- max(0, )
   g.pred <- ggplot(pred.int, aes(x = weir, y = fit)) +
-    geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr, fill = "prediction interval", color = "#dedede"), color = "#dedede", stat = "identity") + # prediction interval
-    geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr, fill = "confidence interval", color = "#999999"), color = "#999999", stat = "identity") + #confidence interval
+    geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr, fill = "prediction interval"), color = "black", stat = "identity") + # prediction interval
+    geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr, fill = "confidence interval"), color = "black", stat = "identity") + #confidence interval
     geom_point(data = data, aes(x = weir, y = sonar)) + #plots all the points
     #geom_smooth(method = "lm", show.legend = TRUE) + #attempt to add dashed line
     geom_abline(intercept = 0, slope = 1, lty = "dashed") + #line y = x for reference
@@ -100,17 +135,79 @@ graph_weir_vs_sonar <- function(data, linear_model, this_year, this_period, this
     ggtitle(paste0(this_year, " Sonar vs Weir estimates of daily upstream migration of ", this_species)) + 
     labs(fill = "intervals")  +
     scale_fill_manual(
-      values = c("#ededed", "#919191"),
+      values = c("#919191", "#dedede"),
       name = "Intervals",
-      labels = c("Prediction Interval", "Confidence Interval")
+      labels = c("95% Confidence Interval", "95% Prediction Interval")
     ) +
-    theme(legend.position="right",
-          legend.direction = "vertical")
-    #scale_fill_manual(values=c("#e6e6e6", "#a0a0a0"), 
-    #                       name="Interval",
-    #                       breaks=c("pred.int", "conf.int"),
-    #                       labels=c("Prediction Interval", "Confidence Interval"))
+    theme(legend.position="bottom",
+          legend.direction = "horizontal")
+  #scale_fill_manual(values=c("#e6e6e6", "#a0a0a0"), 
+  #                       name="Interval",
+  #                       breaks=c("pred.int", "conf.int"),
+  #                       labels=c("Prediction Interval", "Confidence Interval"))
   g.pred  
+}
+
+graph_weir_vs_sonar_lines <- function(data, linear_model, this_year, this_period, this_species) { 
+  
+  #data <- data_wide <- data_wide_weir_sonar60
+  #
+  #this_species <- "sockeye"
+  #this_period <- "sixty_minute"
+  #this_year <- 2016
+  #linear_model <- [get code from pvalues_lm_graph_ws function]
+  
+  #Use to make 95% CI and PI 
+  minweir <- min(data$weir, na.rm = TRUE)
+  maxweir <- max(data$weir, na.rm = TRUE)
+  predx <- data.frame(weir = seq(from = minweir, to = maxweir, by = (maxweir-minweir)/19))
+  regression_data <- c(format(summary(linear_model)$r.squared, digits = 3), format(summary(linear_model)$coefficients[2,4], digits = 3))
+  r2 <- paste("r^2 = ", format(summary(linear_model)$r.squared, digits = 3))
+  pval <- paste("pvalue = ", format(summary(linear_model)$coefficients[2,4], digits = 3))  
+  # ... confidence interval
+  conf.int <- cbind(predx, predict(linear_model, newdata = predx, interval = "confidence", level = 0.95))
+  # ... prediction interval
+  pred.int2 <- cbind(predx, predict(linear_model, newdata = predx, interval = "prediction", level = 0.95))
+  pred.int <- pred.int2 %>% mutate(line_key = 'linear regression') %>%
+    bind_rows(pred.int2 %>% mutate(line_key = 'line y = x', fit = weir, lwr = NA, upr = NA))
+  
+  #yaxismin <- max(0, )
+  g.pred <- ggplot(pred.int, aes(x = weir, y = fit, group = line_key)) +
+    #geom_smooth(data = pred.int, aes(ymin = lwr, ymax = upr, fill = "prediction interval"), color = "black", stat = "identity") + # prediction interval
+    #geom_smooth(data = conf.int, aes(ymin = lwr, ymax = upr, fill = "confidence interval"), color = "black", stat = "identity") + #confidence interval
+    geom_line(aes(linetype = line_key)) +
+    scale_linetype_manual(values=c("dashed", "solid"))+
+    #geom_smooth(method = "lm", show.legend = TRUE) + #attempt to add dashed line
+    #geom_abline(intercept = 0, slope = 1, lty = "dashed") + #line y = x for reference
+    #geom_point(data = data, aes(x = weir, y = sonar)) + #plots all the points
+    #theme_bw() +
+    #geom_label(x = -Inf, y = +Inf, hjust = "inward", vjust = 1, label = paste(r2), parse = TRUE) +
+    #geom_label(x = -Inf, y = +Inf, hjust = "inward", vjust = 2, label = paste(pval), parse = TRUE) +
+    theme_update(text = element_text(size = 10), 
+                 axis.text.x = element_text(size = 10, angle = 45, hjust = 1, vjust = 0.9), 
+                 axis.text.y = element_text(size = 10)) +
+    xlab(paste("Estimate of daily upstream migration of ", this_species, " by weir")) +
+    ylab(paste("Estimate of daily upstream migration of ", this_species, " by sonar")) +
+    ggtitle(paste0(this_year, " Sonar vs Weir estimates of daily upstream migration of ", this_species)) + 
+    #labs(fill = "intervals")  +
+    #scale_fill_manual(
+    #  values = c("#919191", "#dedede"),
+    #  name = "Intervals",
+    #  labels = c("95% Confidence Interval", "95% Prediction Interval")
+    #) +
+    theme(legend.position="bottom",
+          legend.direction = "horizontal")
+  #scale_fill_manual(values=c("#e6e6e6", "#a0a0a0"), 
+  #                       name="Interval",
+  #                       breaks=c("pred.int", "conf.int"),
+  #                       labels=c("Prediction Interval", "Confidence Interval"))
+  g.pred  
+}
+get_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
 }
 
 #functions for graphing diagnositics and returning a model
@@ -236,4 +333,33 @@ pvalues_lm_graph_ws <- function(data = data_wide_weir_sonar60, this_species, thi
   
   out <- list(values = df, graph = graph)
   return(out)
+}
+get_line_legend <- function(data = data_wide_weir_sonar60, this_species, this_period, this_year){
+  #this_species <- "sockeye"
+  #this_year <- 2016 
+  #this_period <- "sixty_minute"
+  
+  #preparing data, also using in wilcoxon test
+  data_wide <- data_wide_weir_sonar60 %>%
+    #Filter out wanted data
+    filter(species == this_species, period == this_period, year == this_year) %>%
+    # remove instances where there are weir counts but no sonar and vise versa
+    filter(complete.cases(.))
+  
+  #used in linear gression & graphing
+  data_g <- data_wide %>%
+    gather(method, abundance, c("sonar", "weir"))
+  
+  #create linear model
+  linear_model <- lm_weir60vssonar60(data_wide)
+  summary(linear_model)# show results
+
+  # Graph regression and put in figure file
+  (graph <- graph_weir_vs_sonar(data_wide, linear_model, this_year, this_period, this_species))
+  #ggsave(paste0("figures/", this_species, this_period, this_year, "weir_sonar.png"), dpi=600, height=6, width=6, units="in")
+  
+  # Graph regression and put in figure file
+  (graph <- graph_weir_vs_sonar_lines(data_wide, linear_model, this_year, this_period, this_species))
+  line_legend <- get_legend(graph)
+  return(line_legend)
 }
