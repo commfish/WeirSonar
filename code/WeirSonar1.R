@@ -100,11 +100,13 @@ values <- bind_rows(sockeye_values, coho_values, total_values)
 save(table_values_1060, file = "output/table_values_1060.Rda")
 write.csv(table_values_1060,"H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar\\output\\table_values_1060.csv", row.names = FALSE)
 
-weirsockeyegraphs <- cowplot::plot_grid(sockeye16weir$graph, sockeye17weir$graph, sockeye18weir$graph,  ncol = 1) #, scale = c(1,1,1))
+weirsockeyegraphs <- cowplot::plot_grid(sockeye16weir$graph, sockeye17weir$graph, sockeye18weir$graph,  ncol = 1, 
+                                        labels = c('A: ', 'B: ', 'C:'),
+                                        vjust -0.2) #, scale = c(1,1,1))
 title <- ggdraw() + draw_label("Weir Sockeye", fontfamily = 'Times New Roman')
 weirsockeyegraphs <- plot_grid(title, weirsockeyegraphs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
-weircohographs <- cowplot::plot_grid(coho16weir$graph, coho17weir$graph, coho18weir$graph,  ncol = 1) #, scale = c(1,1,1))
+weircohographs <- cowplot::plot_grid(coho16weir$graph, coho17weir$graph, coho18weir$graph,  ncol = 1, labels = c('D', 'E', 'F')) #, scale = c(1,1,1))
 title <- ggdraw() + draw_label("Weir Coho", fontfamily = 'Times New Roman')
 weircohographs <- plot_grid(title, weircohographs, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
@@ -127,11 +129,11 @@ y.grob <- textGrob("10 minute per hour estimates of daily fish passage upstream.
 p <- grid.arrange(arrangeGrob(p, left = y.grob))
 ggsave(paste0("figures/weirsockeyecoho1060graphs.png"), plot = p, dpi = 600, height = 10, width = 7, units ="in")
 
-weirtotalgraphs <- cowplot::plot_grid(total16weir$graph, total17weir$graph, total18weir$graph,  ncol = 1, scale = c(1,1,1))
+weirtotalgraphs <- cowplot::plot_grid(total16weir$graph, total17weir$graph, total18weir$graph,  ncol = 1, scale = c(1,1,1), labels = c('A', 'B', 'C'))
 title <- ggdraw() + draw_label("Weir Total", fontfamily = 'Times New Roman')
 weirtotalgraphs <- plot_grid(title, weirtotalgraphs, ncol = 1, rel_heights = c(0.1, 1)) 
 
-sonartotalgraphs <- cowplot::plot_grid(total16sonar$graph, total17sonar$graph, total18sonar$graph, ncol = 1, scale = c(1,1,1))
+sonartotalgraphs <- cowplot::plot_grid(total16sonar$graph, total17sonar$graph, total18sonar$graph, ncol = 1, scale = c(1,1,1), labels = c('D', 'E', 'F'))
 title <- ggdraw() + draw_label("Sonar Total", fontfamily = 'Times New Roman')
 sonartotalgraphs <- plot_grid(title, sonartotalgraphs, ncol = 1, rel_heights = c(0.1, 1)) 
 
@@ -162,7 +164,7 @@ ggsave(paste0("figures/weirsonartotal1060graphs.png"), plot = p, dpi = 600, heig
     theme(panel.grid.major = element_line("lightgray",0.5),
           panel.grid.minor = element_line("lightgray",0.25)) + 
     ggtitle("60 min vs 10 min 2016-2018") +
-    facet_grid(method ~ species))
+    facet_grid(method ~ species, scales = "free"))
 
 #This graph looks at totals of all fish passing and displays graphs by year and method (sonar or weir)
 # All fish: Chinook, chum, coho, pinks, dolly varden
@@ -175,7 +177,7 @@ totaldat <- data_wide1060 %>% filter(species == "total")
     theme(panel.grid.major = element_line("lightgray",0.5),
           panel.grid.minor = element_line("lightgray",0.25)) + 
     ggtitle("total 60 min vs 10 min") +
-    facet_grid(method ~ year))
+    facet_grid(method ~ year, scales = "free"))
 
 #####60 minute weir vs 60 minute sonar
 
@@ -186,8 +188,6 @@ sockeye16_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species 
 sockeye17_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "sockeye", this_period = "sixty_minute", this_year = 2017)
 sockeye18_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "sockeye", this_period = "sixty_minute", this_year = 2018)
 sockeye_values <- bind_rows(sockeye16_60$values, sockeye17_60$values, sockeye18_60$values)
-
-
 
 p3 <- grid.arrange(arrangeGrob(sockeye16_60$graph + theme(legend.position="none"),
                                sockeye17_60$graph + theme(legend.position="none"),
@@ -235,16 +235,25 @@ save(table_values_ws, file = "output/table_values_ws.Rda")
 write.csv(table_values_ws,"H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_sonar\\WeirSonar\\output\\table_values_ws.csv", row.names = FALSE)
 #cowplots
 
-s <- sockeyeweir60sonar60graphs <- cowplot::plot_grid(sockeye16_60$graph, sockeye17_60$graph, sockeye18_60$graph, scale = c(1,1,1), ncol = 1)
+(s <- sockeyeweir60sonar60graphs <- cowplot::plot_grid(sockeye16_60$graph, sockeye17_60$graph, sockeye18_60$graph, 
+                                                      scale = c(1,1,1), ncol = 1, 
+                                                      labels = c('A: N\u2260', 'B: N \u2260', 'C: N\u0336  FTR'), 
+                                                      hjust = -0.2, vjust = -.2))
 title <- ggdraw() + draw_label("Sockeye", fontfamily = 'Times New Roman')
 #legend <- get_legend(sockeye16_60$graph)
 s <- plot_grid(title, s, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
-c <- cohoweir60sonar60graphs <- cowplot::plot_grid(coho16_60$graph, coho17_60$graph, coho18_60$graph, scale = c(1,1,1), ncol = 1)
+c <- cohoweir60sonar60graphs <- cowplot::plot_grid(coho16_60$graph, coho17_60$graph, coho18_60$graph, 
+                                                   scale = c(1,1,1), ncol = 1,
+                                                   labels = c('D: N  FTR', 'E: N\u0336  FTR', 'F: N\u0336  FTR'), 
+                                                   hjust = -0.2, vjust = -.2)
 title <- ggdraw() + draw_label("Coho", fontfamily = 'Times New Roman')
 c <- plot_grid(title, c, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
-t <- totalweir60sonar60graphs <- cowplot::plot_grid(total16_60$graph, total17_60$graph, total18_60$graph, scale = c(1,1,1), ncol = 1)
+t <- totalweir60sonar60graphs <- cowplot::plot_grid(total16_60$graph, total17_60$graph, total18_60$graph, 
+                                                    scale = c(1,1,1), ncol = 1, 
+                                                    labels = c('G: N \u2260', 'H: N\u0336  \u2260', 'I: N\u0336  FTR'), 
+                                                    hjust = -0.2, vjust = -.2)
 title <- ggdraw() + draw_label("Total", fontfamily = 'Times New Roman')
 t <- plot_grid(title, t, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
@@ -256,8 +265,13 @@ title <- ggdraw() + draw_label("Weir vs sonar of daily upstream passage of fish 
 p <- plot_grid(title, p, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 p <- plot_grid(p, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 p <- add_sub(p, "Daily upstream passage of fish at the weir.", fontfamily = 'Times New Roman')
-p <- add_sub(p, "___ line linear regression\n--- line y = x with slope = 1.", size = 10)
-#p <- p + grid.text("y lable", a = unit(-3, "lines"), rot = 90)
+p <- add_sub(p, "___ linear regression \n----- line y = x 
+Ho: The relationship between the weir and sonar counts is statistically significant. 
+\u2260 indicates we rejected Ho. 
+FTR indicates we failed to reject Ho.
+N and N\u0336  indicate normally and not normally distributed residuals and 
+             that parametric and non-parametric tests were preformed respectively.", size = 10)
+#p <- p + grid.text("y lables"), rot = 90)
 #ggdraw(add_sub(plot, "Label", vpadding=grid::unit(0,"lines"),y=6, x=0.5, vjust=4.5))
 
 # y label
@@ -287,8 +301,8 @@ linear_model <- lm_weir60vssonar60(data_wide)
 summary(linear_model)# show results
 
 # Graph regression and put in figure file
-(graph <- graph_weir_vs_sonar_labels(data_wide, linear_model, this_year, this_period, this_species))
-ggsave(paste0("figures/", this_species, this_period, this_year, "weir_sonarlabels.png"), dpi=600, height=6, width=6, units="in")
+graph <- graph_weir_vs_sonar_labels(data_wide, linear_model, this_year, this_period, this_species)
+ggsave(paste0("figures/", this_species, this_period, this_year, "weir_sonarlabels.png"), dpi=600, height=8, width=6, units="in")
 cipi_legend <- get_legend(graph)
 line_legend <- get_line_legend(data_wide_weir_sonar60, this_year, this_period, this_species)
 
@@ -296,8 +310,8 @@ p3 <- grid.arrange(arrangeGrob(p,
                                nrow=1),
                    cipi_legend, nrow=2,heights=c(10, 1))
 
-ggsave(paste0("figures/weir60sonar60graphs.png"), plot = p, dpi= 600, height= 8, width = 7, units="in")
-ggsave(paste0("figures/weir60sonar60graphs2.png"), plot = p3, dpi= 600, height= 8, width = 7, units="in")
+ggsave(paste0("figures/weir60sonar60graphs.png"), plot = p, dpi= 600, height= 9, width = 7, units="in")
+ggsave(paste0("figures/weir60sonar60graphs2.png"), plot = p3, dpi= 600, height= 9 , width = 7, units="in")
 
 
 
