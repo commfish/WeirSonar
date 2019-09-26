@@ -194,14 +194,14 @@ p3 <- grid.arrange(arrangeGrob(sockeye16_60$graph + theme(legend.position="none"
                                nrow=1),
                    mylegend, nrow=2,heights=c(10, 1))
 
-coho16_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "coho", this_period = "sixty_minute", this_year = 2016)
-coho17_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "coho", this_period = "sixty_minute", this_year = 2017)
-coho18_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "coho", this_period = "sixty_minute", this_year = 2018)
+coho16_60 <- pvalues_lm_graph_ws_no_ylabel(data = data_wide_weir_sonar60, this_species = "coho", this_period = "sixty_minute", this_year = 2016)
+coho17_60 <- pvalues_lm_graph_ws_no_ylabel(data = data_wide_weir_sonar60, this_species = "coho", this_period = "sixty_minute", this_year = 2017)
+coho18_60 <- pvalues_lm_graph_ws_no_ylabel(data = data_wide_weir_sonar60, this_species = "coho", this_period = "sixty_minute", this_year = 2018)
 coho_values <- bind_rows(coho16_60$values, coho17_60$values, coho18_60$values)
 
-total16_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "total", this_period = "sixty_minute", this_year = 2016)
-total17_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "total", this_period = "sixty_minute", this_year = 2017)
-total18_60 <- pvalues_lm_graph_ws(data = data_wide_weir_sonar60, this_species = "total", this_period = "sixty_minute", this_year = 2018)
+total16_60 <- pvalues_lm_graph_ws_no_ylabel(data = data_wide_weir_sonar60, this_species = "total", this_period = "sixty_minute", this_year = 2016)
+total17_60 <- pvalues_lm_graph_ws_no_ylabel(data = data_wide_weir_sonar60, this_species = "total", this_period = "sixty_minute", this_year = 2017)
+total18_60 <- pvalues_lm_graph_ws_no_ylabel(data = data_wide_weir_sonar60, this_species = "total", this_period = "sixty_minute", this_year = 2018)
 total_values <- bind_rows(total16_60$values, total17_60$values, total18_60$values)
 
 values <- bind_rows(sockeye_values, coho_values, total_values)
@@ -237,45 +237,45 @@ write.csv(table_values_ws,"H:\\sarah\\Projects\\Kodiak_salmon\\Chignik\\chignik_
 
 (s <- sockeyeweir60sonar60graphs <- cowplot::plot_grid(sockeye16_60$graph, sockeye17_60$graph, sockeye18_60$graph, 
                                                       scale = c(1,1,1), ncol = 1, 
-                                                      labels = c('A: N\u2260', 'B: N \u2260', 'C: N\u0336  FTR'), 
-                                                      hjust = -0.2, vjust = -.2))
+                                                      labels = c('', '', '        *'), 
+                                                      hjust = -.5, vjust = .5))
 title <- ggdraw() + draw_label("Sockeye", fontfamily = 'Times New Roman')
 #legend <- get_legend(sockeye16_60$graph)
 s <- plot_grid(title, s, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
 c <- cohoweir60sonar60graphs <- cowplot::plot_grid(coho16_60$graph, coho17_60$graph, coho18_60$graph, 
                                                    scale = c(1,1,1), ncol = 1,
-                                                   labels = c('D: N  FTR', 'E: N\u0336  FTR', 'F: N\u0336  FTR'), 
-                                                   hjust = -0.2, vjust = -.2)
+                                                   labels = c('        *', '        *', '        *'), 
+                                                   hjust = -.5, vjust = .5)
 title <- ggdraw() + draw_label("Coho", fontfamily = 'Times New Roman')
 c <- plot_grid(title, c, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
 t <- totalweir60sonar60graphs <- cowplot::plot_grid(total16_60$graph, total17_60$graph, total18_60$graph, 
                                                     scale = c(1,1,1), ncol = 1, 
-                                                    labels = c('G: N \u2260', 'H: N\u0336  \u2260', 'I: N\u0336  FTR'), 
-                                                    hjust = -0.2, vjust = -.2)
+                                                    labels = c('', '', '        *'), 
+                                                    hjust = -.5, vjust = .5)
 title <- ggdraw() + draw_label("Total", fontfamily = 'Times New Roman')
 t <- plot_grid(title, t, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 
 #p <- weir60sonar60graphs <- cowplot::plot_grid(sockeyeweir60sonar60graphs, cohoweir60sonar60graphs, totalweir60sonar60graphs, ncol = 3)
 p <- weir60sonar60graphs <- cowplot::plot_grid(s, c, t, ncol = 3)
 
-#Add title
-title <- ggdraw() + draw_label("Weir vs sonar of daily upstream passage of fish at Chignik Alaska.")
-p <- plot_grid(title, p, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
+#Add title CJFAS none of the multipaneled figures in my examples had a title.
+#title <- ggdraw() + draw_label("Weir vs sonar of daily upstream passage of fish at Chignik Alaska.")
+#p <- plot_grid(title, p, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
 p <- plot_grid(p, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
-p <- add_sub(p, "Daily upstream passage of fish at the weir.", fontfamily = 'Times New Roman')
-p <- add_sub(p, "___ linear regression \n----- line y = x 
-Ho: The relationship between the weir and sonar counts is statistically significant. 
-\u2260 indicates we rejected Ho. 
-FTR indicates we failed to reject Ho.
-N and N\u0336  indicate normally and not normally distributed residuals and 
-             that parametric and non-parametric tests were preformed respectively.", size = 10)
+p <- add_sub(p, "Weir counts of fish", fontfamily = 'Times New Roman')
+#p <- add_sub(p, "___ linear regression \n----- line y = x 
+#Ho: The relationship between the weir and sonar counts is statistically significant. 
+#\u2260 indicates we rejected Ho. 
+#FTR indicates we failed to reject Ho.
+#N and N\u0336  indicate normally and not normally distributed residuals and 
+#             that parametric and non-parametric tests were preformed respectively.", size = 10)
 #p <- p + grid.text("y lables"), rot = 90)
 #ggdraw(add_sub(plot, "Label", vpadding=grid::unit(0,"lines"),y=6, x=0.5, vjust=4.5))
 
 # y label
-y.grob <- textGrob("Daily upstream passage of fish at the sonar", gp=gpar(col="black", fontsize=15, fontfamily = 'Times New Roman'), rot=90)
+y.grob <- textGrob("Sonar counts of fish", gp=gpar(col="black", fontsize=15, fontfamily = 'Times New Roman'), rot=90)
 #add y label to plot  
 #https://stackoverflow.com/questions/33114380/centered-x-axis-label-for-muliplot-using-cowplot-package
 p <- grid.arrange(arrangeGrob(p, left = y.grob))
@@ -306,12 +306,12 @@ ggsave(paste0("figures/", this_species, this_period, this_year, "weir_sonarlabel
 cipi_legend <- get_legend(graph)
 line_legend <- get_line_legend(data_wide_weir_sonar60, this_year, this_period, this_species)
 
-p3 <- grid.arrange(arrangeGrob(p,
-                               nrow=1),
-                   cipi_legend, nrow=2,heights=c(10, 1))
+#p3 <- grid.arrange(arrangeGrob(p,
+#                               nrow=1),
+#                   cipi_legend, nrow=2,heights=c(10, 1))
 
 ggsave(paste0("figures/weir60sonar60graphs.png"), plot = p, dpi= 600, height= 9, width = 7, units="in")
-ggsave(paste0("figures/weir60sonar60graphs2.png"), plot = p3, dpi= 600, height= 9 , width = 7, units="in")
+#ggsave(paste0("figures/weir60sonar60graphs2.png"), plot = p3, dpi= 600, height= 9 , width = 7, units="in")
 
 
 
